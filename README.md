@@ -51,6 +51,7 @@ until now, the only way to try it is through a terminal by compiling and running
 - ALU implementation
 - Memory modules
 - Waveform visualization
+- Graphical User Interface support
 
 ## 📄 License
 Distributed under the MIT License. See `LICENSE.md` for more information.
