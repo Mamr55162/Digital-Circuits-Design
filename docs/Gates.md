@@ -66,5 +66,6 @@ static bool AND(bool A, bool B)
    }
 ```
 It takes more lines but it lays out the complete step-by-step logic.
+
 <img width="236" height="51" alt="image" src="https://github.com/user-attachments/assets/90a606f7-a316-487d-b6fb-abfa91f51996" />
 
