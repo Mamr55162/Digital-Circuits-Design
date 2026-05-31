@@ -23,7 +23,7 @@ Cout = AB + (A $\oplus$ B)Cin
 
 ## Code Walkthrough
   The code in full adder is nearly the same as half adder except for the Carry input, here is the code snippet
-```C++
+```cpp
 bool sum = Gates::XOR(Gates::XOR(A,B),C);
 bool carry = Gates::OR(Gates::AND(A,B),Gates::AND(Gates::XOR(A,B),C));
 return {sum, carry};
@@ -32,12 +32,12 @@ The function returns a vector of boolean values, first the sum which is computed
 
 ## Example Usage
   The following code snippet provides an example
-```C++
+```cpp
 vector<bool> result = combinational_circuits::Full_Adder(1,1,1);
 cout << result[0] << " " << result[1];
 ```
 Expected Output:
-```Terminal
+```text
 1 1
 ```
 
