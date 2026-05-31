@@ -26,7 +26,7 @@ static bool NAND(bool A, bool B)
 ```
 It uses the bitwise AND **&** with a NOT operator **!** at the parentheses to inverse the AND operation.
 ## Gates class:
-* NOT Gate: implemented using a NAND with its two inputs tied together, see the following code snippet:
+* **NOT Gate**: implemented using a NAND with its two inputs tied together, see the following code snippet:
 ```cpp
 static bool NOT(bool A)
    {
@@ -37,10 +37,7 @@ Here I use one NAND with the same input (tied two-input) to produce the compleme
 
 <img width="183" height="43" alt="image" src="https://github.com/user-attachments/assets/9f2f22c9-5ca4-4b7c-a0ec-abeabbc5335c" />
 
-
-
-
-* OR Gate: implemented using three NAND gates, two for inverting inputs working as NOT gates, and a usual one, so when you apply De Morgan's law the product becomes sum and the complements cancel, see the following code snippet:
+* **OR Gate**: implemented using three NAND gates, two for inverting inputs working as NOT gates, and a usual one, so when you apply De Morgan's law the product becomes sum and the complements cancel, see the following code snippet:
 ```cpp
 static bool OR(bool A, bool B)
    {
@@ -51,7 +48,7 @@ Here the inner NAND gates work as the inverters, while the outer NAND works as a
 
 <img width="248" height="77" alt="image" src="https://github.com/user-attachments/assets/2e74a040-525d-44e0-8ea3-cba50a5484dc" />
 
-* AND Gate: implemented using four NAND gates, two for inverting the inputs, one usual NAND, and one for inverting the output, so when applying De Morgan's law, it gets canceled by the last inverter gate at the output producing a normal product term, in the code we use 3 NAND, see the following code snippet:
+* **AND Gate**: implemented using four NAND gates, two for inverting the inputs, one usual NAND, and one for inverting the output, so when applying De Morgan's law, it gets canceled by the last inverter gate at the output producing a normal product term, in the code we use 3 NAND, see the following code snippet:
 ```cpp
 static bool AND(bool A, bool B)
    {
