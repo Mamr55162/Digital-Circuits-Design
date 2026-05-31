@@ -17,7 +17,7 @@ Carry = AB
 ![Circuit Design](https://www.build-electronic-circuits.com/wp-content/uploads/2022/10/halfadder2-2.png)
 
 ## Code Walkthrough
-The implementation of Half Adder in the code is a function with a return value of a vector of boolean values, it accepts two boolean inputs A & B, which are the two binary digits we will be adding, inside the function we declare the sum and carry variables each as a boolean data type, then we assign them values by accessing the class **Gates** and calling the gates methods, after the computation is done the functions returns both sum and carry as a vector of boolean values.
+The implementation of Half Adder in the code is a function with a return value of a vector of boolean values, it accepts two boolean inputs A & B, which are the two binary digits we will be adding, inside the function we declare the sum and carry variables each as a boolean data type, then we assign them values by accessing the class **Gates** and calling the gates methods, after the computation is done the functions returns both sum and carry as a vector of boolean values. All the gates used in **Gates** class are internally designed using only NAND gate.
 ```C++
 bool sum = Gates::XOR(A,B);
 bool carry = Gates::AND(A, B);
