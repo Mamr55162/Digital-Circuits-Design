@@ -75,10 +75,40 @@ static bool NOR(bool A, bool B)
    {
       A = NAND(A,A);
       B = NAND(B,B);
-      out_invert = NAND(A,B);
+      bool out_invert = NAND(A,B);
       return NAND(out_invert, out_invert);
    }
 ```
 It takes more lines but it shows the exact logical step-by-step procedure and each gate in the design independently.
 
 <img width="293" height="81" alt="image" src="https://github.com/user-attachments/assets/18e072c9-d491-497e-a569-d033014e34f9" />
+
+
+* **XOR Gate**: implemented using four NAND gates, all of them perform natural NAND operations, none of them is an inverter, the first NAND performs a normal NAND operation, the second NAND gate takes a connection from A and the output of the first NAND, the third NAND also takes a connection from B and the output of the first NAND, the fourth and last NAND takes both the outputs of the second and third NANDs performing the XOR operation, see the following code snippet:
+```cpp
+static bool XOR(bool A, bool B)
+   {
+      bool x = NAND(A, B);
+      bool y = NAND(A, x);
+      bool z = NAND(B, x);
+      return NAND(y, z);
+   }
+```
+Here three accomplice variables are used which are: x, y and z, the first NAND applies to A and B, the second one takes the output of the first with A, the third one takes the output of the first with B, and finally the last NAND gate takes both the second and third output.
+
+<img width="534" height="156" alt="image" src="https://github.com/user-attachments/assets/f6f20982-c2ea-4da1-9fc4-b19572661e30" />
+
+* **XNOR Gate**: implemented using five NAND gates, all the same logic as XOR except the last gate which will be an inverter for the output, see the following code snippet:
+```cpp
+static bool XNOR(bool A, bool B)
+   {
+      bool x = NAND(A, B);
+      bool y = NAND(A, x);
+      bool z = NAND(B, x);
+      bool out_invert = NAND(y, z);
+      return NAND(out_invert, out_invert);
+   }
+```
+Here the same XOR logic is used except for the last gate which works as an inverter to the output which makes the XNOR operation.
+
+<img width="539" height="170" alt="image" src="https://github.com/user-attachments/assets/eecd7324-5095-4445-a175-2038fb00cc5e" />
