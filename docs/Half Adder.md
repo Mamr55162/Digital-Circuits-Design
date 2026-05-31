@@ -43,6 +43,8 @@ Terminal
 
 <img width="573" height="381" alt="logic_converter" src="https://github.com/user-attachments/assets/17d937ce-80ae-49e3-8c75-c87f5e1a36e1" />
 
+*Logic converter with output connected to sum wire.*
+
   
 > [!NOTE]
 > Do not connect the Logic Converter pins directly to the Vcc before the switch, connect them with a junction after the switch.
