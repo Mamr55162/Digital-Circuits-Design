@@ -47,7 +47,7 @@ Terminal
 ## Multisim Design
 For the simulation in multisim, 3 Vcc 5.0V sources were used, each for an input, each connected to a DIP switch that can be controlled, two XOR gates were used and two AND gates with one OR gate, the output of the sum and the carry are attached to a LED as an indicator and the LED to the ground, to connect the Logic converter, connect the first three pins from the left with A, B and C respectively, then connect the output to either the sum or the carry, double click the logic converter then choose an option.
 
-![Logic Converter with output connected to sum]<img width="568" height="386" alt="image" src="https://github.com/user-attachments/assets/2bd9c970-70e4-46b7-857b-b4f7fcd5c9a5" />
+[!Logic Converter with output connected to sum]<img width="568" height="386" alt="image" src="https://github.com/user-attachments/assets/2bd9c970-70e4-46b7-857b-b4f7fcd5c9a5" />
 
 
 >[!Note]
