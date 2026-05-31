@@ -15,4 +15,4 @@ This class focuses on implementing every logic gate using a universal logic gate
 | 1 | 0 | 1 |
 | 1 | 1 | 0 |
 
-Y = (AB)' = A` + B`
+Y = (AB)' = A' + B'
