@@ -15,7 +15,7 @@ Sum = A $\oplus$ B
 Carry = A $\cdot$ B
 
 ## Circuit Structure
-<img width="281" height="181" alt="image" src="https://github.com/user-attachments/assets/38fdce22-dbff-41e1-a628-617f0b2444aa" />
+![Circuit Design](https://www.build-electronic-circuits.com/wp-content/uploads/2022/10/halfadder2-2.png)
 
 ## Code Walkthrough
   The implementation of Half Adder in the code is a function with a return value of a vector of boolean values, it accepts two boolean inputs A & B, which are the two binary digits we will be adding, inside the function we declare the sum and carry variables each as a boolean data type, then we assign them values by accessing the class **Gates** and calling the gates methods, after the computation is done the functions returns both sum and carry as a vector of boolean values.
