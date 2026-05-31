@@ -206,7 +206,7 @@ bool combinational_circuits::Decoder_to_MUX(bool S1, bool S0, bool I0, bool I1, 
     return F;
 }
 
-//Implementation of 75HC42 IC BCD-to-Decimal Decoder
+//Implementation of 74HC42 IC BCD-to-Decimal Decoder
 vector<bool> combinational_circuits::_74HC42_(bool A0, bool A1, bool A2, bool A3)
 {
     bool OUT0  = Gates::NOT(Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), Gates::NOT(A1)), Gates::NOT(A0)));
@@ -228,7 +228,7 @@ vector<bool> combinational_circuits::_74HC42_(bool A0, bool A1, bool A2, bool A3
     };
 }
 
-//Implementation of a BCD-to-7-Segment Decoder with a LED Display.
+//Implementation of a BCD-to-7-Segment Decoder with a LED Display 74LS47D.
 vector<bool> combinational_circuits::BCD_to_7_Segment(bool A3, bool A2, bool A1, bool A0, bool decimal)
 {
     // Digit detection (correct BCD decoding)
@@ -319,20 +319,6 @@ vector<bool> combinational_circuits::BCD_to_7_Segment(bool A3, bool A2, bool A1,
 
 int main()
 {
-    /*
-    ______
-          |
-    ______|
-          |
-    ______|
-    */
 
-
-    Wire A, B;
-    A.value = 1, B.value = 1;
-    vector<bool> out;
-    out = combinational_circuits::BCD_to_7_Segment(0,0,1,1,1);
-    for (int i = 0; i < out.size(); i++)
-        Indicator::LED(out[i]);
     return 0;
 }
