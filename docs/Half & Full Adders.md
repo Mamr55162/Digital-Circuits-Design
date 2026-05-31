@@ -23,4 +23,4 @@ digits we will be adding, inside the function we declare the sum and carry varia
 
 ## Multisim Design
   In the design file, I used two Vcc voltage sources each with 5.0V with DIP switches to control the signal, switch on is HIGH and switch off is LOW, each can be switched on and off using the keyboard either button A or button B, each of the voltages source then connected to the XOR & AND gates to produce both sum and carry, for indicating the output there is two LEDs each connected with on of the two outputs & to a ground, to use the Logic Converter connect the first pin from the left to the first Vcc and the pin next to it to the second Vcc, connect the last pin on the right to the output then double click the Logic Converter and choose an option.
-[!NOTE] Do not connect the Logic Converter pins directly to the Vcc before the switch, connect them with a junction after the switch.
+> [!NOTE] Do not connect the Logic Converter pins directly to the Vcc before the switch, connect them with a junction after the switch.
