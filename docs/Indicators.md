@@ -73,3 +73,5 @@ static void Bus(const bitset<4>& bus)
 >- Do not reverse the LED polarity and always check for a ground connection.
 >- You don't have to worry about resistors, fuses or any circuitry protection in Multisim, just be abstract.
 >- When connecting a displayer (HEX or BCD) do not mix up the digits, know your MSB and your LSB.
+>- When connecting a logic converter or analyzer, connect the inputs after the DIP switch not before.
+>- Use PROBE_DIG for digital design, the normal PROBE is used for analog signals and circuits. 
