@@ -7,7 +7,6 @@ This class focuses on implementing every logic gate using a universal logic gate
 
 ***NAND Gate***
 
-## Truth Table & Boolean Expression
 | A | B | Y |
 | - | - | - |
 | 0 | 0 | 1 |
