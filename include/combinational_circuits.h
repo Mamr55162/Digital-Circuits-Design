@@ -1,15 +1,16 @@
 #pragma once
+#include <iostream>
 #include <vector>
 #include <bitset>
 using namespace std;
-#ifndef C___CODED_CIRCUITS_COMBINATIONAL_CIRCUITS_H
-#define C___CODED_CIRCUITS_COMBINATIONAL_CIRCUITS_H
+#ifndef COMBINATIONAL_CIRCUITS_H
+#define COMBINATIONAL_CIRCUITS_H
 
 
 class Wire
 {
 public:
-   bool value;
+   bool value = false;
 };
 
 //Use LED as indicator for HIGH (1) and LOW (0) outputs.
@@ -58,7 +59,10 @@ public:
    }
    static bool XOR(bool A, bool B)
    {
-      return NAND::compute(NAND::compute(NAND::compute(A,A),B), NAND::compute(NAND::compute(B,B),A));
+      bool x = NAND::compute(A, B);
+      bool y = NAND::compute(A, x);
+      bool z = NAND::compute(B, x);
+      return NAND::compute(y, z);
    }
    static bool XNOR(bool A, bool B)
    {
@@ -82,7 +86,7 @@ class combinational_circuits
 {
 
 public:
-   static bool Half_Adder(bool A, bool B);
+   static vector<bool> Half_Adder(bool A, bool B);
    static vector<bool> Full_Adder(bool A, bool B, bool C);
    static vector<bool> _74HC283_(bitset<4> A, bitset<4> B, bool C_in, bool stat);
    static bool Identity_Comparator(bitset<4> A, bitset<4> B);
@@ -97,4 +101,4 @@ public:
 };
 
 
-#endif //C___CODED_CIRCUITS_COMBINATIONAL_CIRCUITS_H
+#endif //COMBINATIONAL_CIRCUITS_H
