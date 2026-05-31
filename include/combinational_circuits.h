@@ -35,7 +35,7 @@ public:
    }
 };
 
-//Implement NOT, OR, AND, NOR, XOR, XNOR using NAND gate only.
+//Implement NOT, OR, AND, NOR, XOR, XNOR, Tri-state gates using NAND gate only.
 class Gates
 {
 public:
@@ -85,7 +85,7 @@ public:
    static bool Half_Adder(bool A, bool B);
    static vector<bool> Full_Adder(bool A, bool B, bool C);
    static vector<bool> _74HC283_(bitset<4> A, bitset<4> B, bool C_in, bool stat);
-   static bitset<1> Equality_Comparator(bitset<4> A, bitset<4> B);
+   static bool Identity_Comparator(bitset<4> A, bitset<4> B);
    static vector<bool> _74HC85_(bitset<4> A, bitset<4> B, bool eq = 0b1, bool larger = 0b0, bool smaller = 0b0);
    static bool MUX_4_to_1(bitset<4> A, bool S0, bool S1);
    static vector<bool> _74HC151_(bitset<8> A, bool S0, bool S1, bool S2);
