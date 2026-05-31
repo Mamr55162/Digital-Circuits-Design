@@ -14,9 +14,9 @@
 | 1 | 1 | 0 |  0  |   1   |
 | 1 | 1 | 1 |  1  |   1   |
 
-*Sum = A \oplus B $\oplus$ Cin*
+Sum = A $\oplus$ B $\oplus$ Cin
 
-*Cout = AB + (A $\oplus$ B)Cin*
+Cout = AB + (A $\oplus$ B)Cin
 
 ## Circuit Structure
 ![Full Adder](https://www.build-electronic-circuits.com/wp-content/uploads/2022/10/fullAdder-1.png)
