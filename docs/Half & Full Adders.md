@@ -18,8 +18,13 @@ Carry = A $\cdot$ B
 <img width="281" height="181" alt="image" src="https://github.com/user-attachments/assets/38fdce22-dbff-41e1-a628-617f0b2444aa" />
 
 ## Code Walkthrough
-  The implementation of Half Adder in the code is a function with a return value of a vector of boolean values, it accepts two boolean inputs A & B, which are the two binary 
-digits we will be adding, inside the function we declare the sum and carry variables each as a boolean data type, then we assign them values by accessing the class **Gates** and calling the gates methods, after the computation is done the functions returns both sum and carry as a vector of boolean values.
+  The implementation of Half Adder in the code is a function with a return value of a vector of boolean values, it accepts two boolean inputs A & B, which are the two binary digits we will be adding, inside the function we declare the sum and carry variables each as a boolean data type, then we assign them values by accessing the class **Gates** and calling the gates methods, after the computation is done the functions returns both sum and carry as a vector of boolean values.
+```
+C++
+bool sum = Gates::XOR(A,B);
+    bool carry = Gates::AND(A, B);
+    return {sum, carry};
+```
 
 ## Multisim Design
   In the design file, I used two Vcc voltage sources each with 5.0V with DIP switches to control the signal, switch on is HIGH and switch off is LOW, each can be switched on and off using the keyboard either button A or button B, each of the voltages source then connected to the XOR & AND gates to produce both sum and carry, for indicating the output there is two LEDs each connected with on of the two outputs & to a ground, to use the Logic Converter connect the first pin from the left to the first Vcc and the pin next to it to the second Vcc, connect the last pin on the right to the output then double click the Logic Converter and choose an option.
