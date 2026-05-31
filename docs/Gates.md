@@ -48,19 +48,17 @@ Here the inner NAND gates work as the inverters, while the outer NAND works as a
 
 <img width="248" height="77" alt="image" src="https://github.com/user-attachments/assets/2e74a040-525d-44e0-8ea3-cba50a5484dc" />
 
-* **AND Gate**: implemented using four NAND gates, two for inverting the inputs, one usual NAND, and one for inverting the output, so when applying De Morgan's law, it gets canceled by the last inverter gate at the output producing a normal product term, in the code we use 3 NAND, see the following code snippet:
+* **AND Gate**: implemented using two NAND gates, one usual NAND, and one for inverting the output, so when applying De Morgan's law, it gets canceled by the last inverter gate at the output producing a normal product term, in the code we use 3 NAND calls, see the following code snippet:
 ```cpp
 static bool AND(bool A, bool B)
    {
       return NAND(NAND(A, B), NAND(A, B));
    }
 ```
-Here the inner NAND gates each compute a normal NAND, the outer NAND works as an inverter because it takes the same input twice, so logically we did one NAND operation then we inverted it to become an AND, another implementation more logical would be:
+Here the inner NAND gate compute a normal NAND, the outer NAND works as an inverter because it takes the same input twice, so logically we did one NAND operation then we inverted it to become an AND, another implementation more logical would be:
 ```cpp
 static bool AND(bool A, bool B)
    {
-      A = NAND(A,A);
-      B = NAND(B,B);
       bool out_invert = NAND(A,B);
       return NAND(out_invert, out_invert);
    }
