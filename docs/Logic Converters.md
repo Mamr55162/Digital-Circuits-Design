@@ -85,6 +85,6 @@ Expected Output:
 A'B + AB'
 ```
 
-<img width="1117" height="303" alt="image" src="https://github.com/user-attachments/assets/0706f3bf-3eab-46fa-9698-65fa05b449ae" />
+<img width="1117" height="304" alt="2 SOP" src="https://github.com/user-attachments/assets/49dd0a07-2804-4d05-b68c-18a083099577" />
 
 ***SOP Expression from truth table***
