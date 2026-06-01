@@ -312,11 +312,11 @@ vector<bool> combinational_circuits::BCD_to_7_Segment(bool A3, bool A2, bool A1,
     else    cout << "  " << endl;
 
     return {a, b, c, d, e, f, g, dp};
-
 }
 
 int main()
 {
 
+   
     return 0;
 }
