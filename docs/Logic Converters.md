@@ -48,25 +48,25 @@ In this function we generate a string of SOP (sum-of-products) expression from t
    static string SOP_Expression(bool out1,bool out2,bool out3,bool out4)
    {
       string exp;
-      if (out1 == true)
+      if (out1)
          exp += "A'B'";
-      if (out2 == true)
+      if (out2)
       {
-         if (out1 == true) // if there is a previous term add '+' between them.
+         if (out1) // if there is a previous term add '+' between them.
             exp += " + A'B";
          else
             exp += "A'B";
       }
-      if (out3 == true)
+      if (out3)
       {
-         if (out1 == true || out2 == true)
+         if (out1 || out2)
             exp += " + AB'";
          else
             exp += "AB'";
       }
-      if (out4 == true)
+      if (out4)
       {
-         if (out1 == true || out2 == true || out3 == true)
+         if (out1 || out2 || out3)
             exp += " + AB";
          else
             exp += "AB";
@@ -88,3 +88,35 @@ A'B + AB'
 <img width="1117" height="304" alt="2 SOP" src="https://github.com/user-attachments/assets/49dd0a07-2804-4d05-b68c-18a083099577" />
 
 ***SOP Expression from truth table***
+
+* **POS Expression**:
+In this function, we generate POS expression string from the given outputs, see the following code snippet:
+```cpp
+
+   static string POS_Expression(bool out1,bool out2,bool out3,bool out4)
+   {
+      string exp;
+      if (!out1)
+         exp += "(A+B)";
+      if (!out2)
+         exp += "(A+B')";
+      if (!out3)
+         exp += "(A'+B)";
+      if (!out4)
+         exp += "(A'+B')";
+      return exp.empty() ? "1" : exp;
+   }
+```
+The if conditions check the validity of the outputs, if it is zero, the if condition checks the inverse of it so it can work, every time an output is zero we add its corresponding POS (product-of-sums) term from the truth table. the function returns a string and checks if the string is empty it means that the table is filled with ones in the output row, so the POS expression value would be just **1**, if not then return the expression.
+### Example Usage
+The following code snippet provides an example:
+```cpp
+    cout << "\n" << twoLogicConverter::POS_Expression(0,1,1,0);
+```
+Expected Output:
+```text
+(A+B)(A'+B')
+```
+<img width="1417" height="385" alt="2 POS" src="https://github.com/user-attachments/assets/a721a452-0142-4fd6-a1a1-a0de787c1d76" />
+
+***POS Expression from truth table***
