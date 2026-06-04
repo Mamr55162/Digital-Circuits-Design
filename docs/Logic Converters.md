@@ -226,3 +226,11 @@ As for the NAND construction method it is commonly used in real logic converters
 - nand_final, An additional NAND gate to combine all the minterm outputs into one final ORed result using ternary if to determine its value.
 - total, The total number of NAND gates needed.
 Then finally the output line.
+
+<img width="863" height="370" alt="image" src="https://github.com/user-attachments/assets/5388f0fa-1fa8-48d4-91de-61b82afbdb3c" />
+
+***SOP Construction of A'B + AB' in Multisim***
+
+<img width="854" height="365" alt="image" src="https://github.com/user-attachments/assets/28e0f164-9127-4c82-8d23-618abc547083" />
+
+***POS Construction of (A + B)(A' + B') in Multisim***
