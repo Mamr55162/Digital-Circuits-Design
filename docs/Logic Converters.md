@@ -318,4 +318,38 @@ static void TruthTable(
              <<((i>>1)&1)<<"  "<<(i&1)<<"  | "<<outs[i]<<"\n";
    }
 ```
-All other functions are the exact same as three-input logic converter but cascaded to contain four inputs so we will not be discussing them, see the provided codes in the **src/** directory for more details/
+All other functions are the exact same as three-input logic converter but cascaded to contain four inputs so we will not be discussing them, see the provided codes in the **src/** directory for more details.
+
+## Multisim Guide to Logic Converters:
+In this last section of the document we will be introducing the logic converter in Multisim and how to utilize it, the logic converter in Multisim can be found in the rightmost list of measurment devices.
+
+<img width="377" height="208" alt="image" src="https://github.com/user-attachments/assets/11fa2734-e89a-41d2-b1d9-88c07cbe2efa" />
+
+***The logic converter symbol in Multisim***
+The following list contains all the details about logic converters in Multisim:
+- A logic converter can hold up to 8 inputs and only one output.
+- Input pins are labeled A,B,C,D,E,F,G,H starting from far right, the last pin ( leftmost pin ) is the output pin.
+- Connect the input pins to each of your inputs to the gates, whether you are using 5.0V Vcc sources or Interactive digital constant source.
+- Connect the output pin to the output of any gate you want to analyze.
+- Double click on the logic converter symbol to open it up and select from the Conversions list.
+
+<img width="575" height="382" alt="image" src="https://github.com/user-attachments/assets/d5bfc4e4-c559-4eca-a5b0-dac0dd0bc1b2" />
+
+***Logic converter window, inputs are A & B, output is the OR gate in A'B + AB'***
+
+In the Conversions list you can choose:
+1. Derive the truth table from the gates.
+2. Derive the output expression from truth table.
+3. Derive a simplified output expression from truth table.
+4. Generate truth table from an expression.
+5. Generate the gates diagram from an expression.
+6. Generate the gate diagram using NAND-only construction from an expression.
+
+<img width="756" height="510" alt="image" src="https://github.com/user-attachments/assets/cfd22564-8584-45cb-b87e-9d61026df146" />
+
+***Simple Logic converter connection to AND gate to illustrate connection details***
+
+>[!NOTE]
+> - Do not connect the logic converter inputs before the DIP switch ,if you are using 5.0V Vcc, connect them after the switch.
+> - Do not connect the logic converter output after the LED, it will be stuck at LOW signal, connect it directly to the output of the gate.
+> - Do not use the logic converter while the simulation is running, make sure the simulation is stopped.
