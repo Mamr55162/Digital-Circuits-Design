@@ -229,6 +229,20 @@ As for the NAND construction method it is commonly used in real logic converters
 - total, The total number of NAND gates needed.
 Then finally the output line.
 
+### Example Usage
+The following code snippet provides an example:
+```cpp
+twoLogicConverter::SOP_GateConstruction(0,1,1,0);
+ twoLogicConverter::POS_GateConstruction(0,1,1,0);
+ twoLogicConverter::NANDConstruction(0,1,1,0);
+```
+Expected Output:
+```text
+Construction : 2 NOT Gates, 2 AND Gates, 1 OR Gates
+Construction : 2 NOT Gates, 1 AND Gates, 2 OR Gates
+NAND Construction : 5 NAND Gates
+```
+
 <img width="863" height="370" alt="image" src="https://github.com/user-attachments/assets/5388f0fa-1fa8-48d4-91de-61b82afbdb3c" />
 
 ***SOP Construction of A'B + AB' in Multisim***
@@ -242,3 +256,30 @@ Then finally the output line.
 ***NAND Construction of A'B + AB' in Multisim using HEADERS_TEST from Connections group***
 
 ## Three-input Logic Converter
+
+In the three-input logic converter class, nearly every function we talked about in the two-input logic converter class is the same, here I will discuss the differences and tweaks done on the functions, without going into too much details if not needed, see the provided codes in **src/** directory.
+* **SOP & POS Expressions**:
+The difference here is the optimization made, instead of making a code full of if statements that may reach up to 9 outer statements, we saved all the possible 3-input SOP ( the same applies for the POS function ) terms in a string array, and the outputs in a bool array and we loop through the outputs array, if an output is true we add the corresponding term to the expression, and we check if the expression is not empty we should add a '+' sign between terms, see the following code snippet for the SOP function:
+```cpp
+static string SOP_Expression(bool o1, bool o2, bool o3, bool o4,
+                          bool o5, bool o6, bool o7, bool o8)
+   {
+      string exp;
+      const string terms[8] = {
+         "A'B'C'", "A'B'C", "A'BC'", "A'BC",
+         "AB'C'",  "AB'C",  "ABC'",  "ABC"
+      };
+      const bool output[8] = {o1,o2,o3,o4,o5,o6,o7,o8};
+      for (int i = 0; i < 8; i++)
+      {
+         if (output[i])
+         {
+            if (!exp.empty()) exp += " + ";
+            exp += terms[i];
+         }
+      }
+      return exp.empty() ? "0" : exp;
+   }
+```
+* **SOP & POS Gate Construction**:
+The difference here is that we use another approach, here we loop through the array of outputs and each output we add one to the AND_count if SOP, OR_count if POS, and we declare three boolean variables to detect whether we need a NOT gate for A, B or C, if the expression is anywhere less than 4 so A needs a NOT gate, if it is in ( 0,1,4,5 ) then B needs a NOT gate, if it is in ( 0,2,4,6 ) then C needs a NOT gate, to understand this mechanism refer to a three-input truth table, this logic applies for SOP, the same applies with POS with differences in the NOT gates conditions, after that we count how many NOT_count we need and apply the same formula we used before to get the OR_count from AND_count if using SOP, or the AND_count from OR_count if using POS.
