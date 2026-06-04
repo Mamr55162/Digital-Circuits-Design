@@ -2,10 +2,10 @@
 ## Overview
 This class focuses on implementing every logic gate using a universal logic gate NAND.
 
-<img width="340" height="188" alt="image" src="https://github.com/user-attachments/assets/02bb158c-6ffc-4a64-97b5-2b286b41ffe7" />
+<img width="186" height="163" alt="image" src="https://github.com/user-attachments/assets/4df516e6-1bfc-4717-8c21-8540b5b494a7" />
 
 
-***NAND Gate***
+***NAND Gate in Multisim***
 
 ***NAND Truth Table:***
 | A | B | Y |
