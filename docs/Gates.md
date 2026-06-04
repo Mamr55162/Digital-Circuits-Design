@@ -149,4 +149,5 @@ Here if the Enable is low it outputs HIGH_Z, a state which no boolean value can 
 
 ***Two-input Logic Gates in Multisim using both ANSI (left) and IEC (right) standard systems***
 
-To find and use gates in Multisim, open the components window, then open Misc Digital group and select TIL family, from there you will find all logic gates with more than just two inputs.
+>[!NOTE]
+> To find and use gates in Multisim, open the components window, then open Misc Digital group and select TIL family, from there you will find all logic gates with more than just two inputs.
