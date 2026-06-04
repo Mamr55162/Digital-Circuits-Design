@@ -51,6 +51,11 @@ The simulation uses:
 - One OR gate
 - LEDs for Sum and Carry outputs
 
+<img width="1223" height="554" alt="image" src="https://github.com/user-attachments/assets/164d87a4-dc9c-47fa-8a5b-9dbbccfa239b" />
+
+***Multisim design of Full Adder***
+
+
 The Logic Converter can be connected to:
 
 - Inputs A, B, and Cin
