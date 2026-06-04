@@ -219,4 +219,4 @@ In these three functions, we try to compute the number of gates needed to constr
    }
 
 ```
-In the first function we initialize all three variables with zeros, then we start our if conditions and each term we meet we add one to the count of the AND gates, if we encounter the first term ( 0 0 ), we need two NOT gates to get A'B', and to count the OR gates we use a general formula that applies to all inputs which states: **$OR_{count} = AND_{count} - 1$**
+In the first function we initialize all three variables with zeros, then we start our if conditions and each term we meet we add one to the count of the AND gates, if we encounter the first term ( 0 0 ), we need two NOT gates to get A'B', and to count the OR gates we use a general formula that applies to all inputs which states: $\textbf(OR_{count} = AND_{count} - 1)$
