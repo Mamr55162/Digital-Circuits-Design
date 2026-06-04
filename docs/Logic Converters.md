@@ -337,7 +337,9 @@ The following list contains all the details about logic converters in Multisim:
 
 ***Logic converter window, inputs are A & B, output is the OR gate in A'B + AB'***
 
+
 In the Conversions list you can choose:
+
 1. Derive the truth table from the gates.
 2. Derive the output expression from truth table.
 3. Derive a simplified output expression from truth table.
