@@ -43,6 +43,11 @@ The simulation uses:
 - XOR gate
 - AND gate
 
+<img width="1194" height="559" alt="image" src="https://github.com/user-attachments/assets/21fbe8ea-cce4-4a43-bf0d-e82cba11b6f1" />
+
+***Multisim design of Half Adder***
+
+
 The Logic Converter can be connected to:
 
 - Inputs A and B
