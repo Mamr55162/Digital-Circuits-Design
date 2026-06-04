@@ -326,6 +326,8 @@ In this last section of the document we will be introducing the logic converter 
 <img width="377" height="208" alt="image" src="https://github.com/user-attachments/assets/11fa2734-e89a-41d2-b1d9-88c07cbe2efa" />
 
 ***The logic converter symbol in Multisim***
+
+
 The following list contains all the details about logic converters in Multisim:
 - A logic converter can hold up to 8 inputs and only one output.
 - Input pins are labeled A,B,C,D,E,F,G,H starting from far right, the last pin ( leftmost pin ) is the output pin.
