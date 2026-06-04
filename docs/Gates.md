@@ -142,3 +142,9 @@ enum TriState
 Here if the Enable is low it outputs HIGH_Z, a state which no boolean value can express, so we used enum called TriState for this third state especially.
 
 <img width="250" height="179" alt="image" src="https://github.com/user-attachments/assets/04058a33-19a4-4965-a9d8-2b812b7e9fde" />
+
+## Multisim Guide & Symbols:
+
+<img width="339" height="650" alt="image" src="https://github.com/user-attachments/assets/172f975e-9e54-410b-9d79-d3c9e2cf59e2" />
+
+***Gates in Multisim using both ANSI (left) and IEC (right) standard systems***
