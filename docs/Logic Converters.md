@@ -7,7 +7,7 @@ These are 3 classes of Logic Converters that produce multiple options the user c
 - Calculate number of gates needed to construct an expression, assuming two-input gates only.
 - Construct a circuit only from NAND gates.
 ## Two-input Logic Converter
-The logic converters implemented in our code are not that similar to multisim ones, but I will provide a full code and multisim guide, the functionality of both however, is the same.
+The logic converters implemented in our code does not mimic Multisim components exactly, but I will provide a full code and multisim guide, the functionality of both however, is the same.
 ### Code Walkthrough
 * **Truth Table Generator**:
 A two-input logic converter is implemented using a class of public methods, we will analyze each method in code order, see the following code snippet for the first function, which generates a truth table depending on the given outputs:
