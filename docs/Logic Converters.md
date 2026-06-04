@@ -234,3 +234,8 @@ Then finally the output line.
 <img width="854" height="365" alt="image" src="https://github.com/user-attachments/assets/28e0f164-9127-4c82-8d23-618abc547083" />
 
 ***POS Construction of (A + B)(A' + B') in Multisim***
+
+<img width="533" height="260" alt="image" src="https://github.com/user-attachments/assets/fe0fb189-e5f7-4c56-96fe-f0bf5173e318" />
+
+***NAND Construction of A'B + AB' in Multisim using HEADERS_TEST from Connections group***
+
