@@ -421,6 +421,15 @@ vector<bool> combinational_circuits::_74HC147_(
 
 int main()
 {
-    
+    //Waveform::Generate_Wave({0,1,0,1,0,0,0,0}); //01010000
+    //vector<bool> res = combinational_circuits::_74HC85_(0b0101,0b0101);
+    //Waveform::Generate_Wave(res);
+    //vector<bool> result = Waveform::Clock_Signal(1,50,0,4);
+    //for (int i = 0; i < result.size(); i++)
+      //  cout << result[i];
+    //cout << "\n";
+    //Waveform::Generate_Wave(result);
+    //Waveform::Timed_Wave({0,1, 1, 0},{1,1,1,1});
+    //Waveform::Generate_Wave({0,1,1,0},{1,1,1,1});
     return 0;
 }
