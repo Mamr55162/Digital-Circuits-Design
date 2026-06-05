@@ -320,26 +320,107 @@ vector<bool> combinational_circuits::BCD_to_7_Segment(bool A3, bool A2, bool A1,
     return {a, b, c, d, e, f, g, dp};
 }
 
+vector<bool> combinational_circuits::Encoder_4_to_2(bool D0, bool D1, bool D2, bool D3)
+{
+    bool Q1 = Gates::OR(D2, D3);
+    bool Q0 = Gates::OR(D1, D3);
+
+    return {Q1, Q0};
+}
+
+vector<bool> combinational_circuits::Decimal_to_BCD_Encoder(
+    bool D0, bool D1, bool D2, bool D3, bool D4,
+    bool D5, bool D6, bool D7, bool D8, bool D9)
+{
+    bool A0 = Gates::OR(
+                Gates::OR(Gates::OR(D1, D3), Gates::OR(D5, D7)),
+                D9);
+
+    bool A1 = Gates::OR(
+                Gates::OR(D2, D3),
+                Gates::OR(D6, D7));
+
+    bool A2 = Gates::OR(
+                Gates::OR(D4, D5),
+                Gates::OR(D6, D7));
+
+    bool A3 = Gates::OR(D8, D9);
+
+    return {A3, A2, A1, A0};
+}
+
+//Implementation of 74HC147 IC, a Decimal-to-BCD priority Encoder with active low inputs and outputs.
+vector<bool> combinational_circuits::_74HC147_(
+    bool D0, bool D1, bool D2, bool D3, bool D4,
+    bool D5, bool D6, bool D7, bool D8, bool D9)
+{
+    // Winner lines (active HIGH internally)
+
+    bool W9 = Gates::NOT(D9);
+
+    bool W8 = Gates::AND(D9,
+               Gates::NOT(D8));
+
+    bool W7 = Gates::AND(
+               Gates::AND(D9, D8),
+               Gates::NOT(D7));
+
+    bool W6 = Gates::AND(
+               Gates::AND(Gates::AND(D9, D8), D7),
+               Gates::NOT(D6));
+
+    bool W5 = Gates::AND(
+               Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6),
+               Gates::NOT(D5));
+
+    bool W4 = Gates::AND(
+               Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5),
+               Gates::NOT(D4));
+
+    bool W3 = Gates::AND(
+               Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4),
+               Gates::NOT(D3));
+
+    bool W2 = Gates::AND(
+               Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4), D3),
+               Gates::NOT(D2));
+
+    bool W1 = Gates::AND(
+               Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4), D3), D2),
+               Gates::NOT(D1));
+
+    bool W0 = Gates::AND(
+               Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4), D3), D2), D1),
+               Gates::NOT(D0));
+
+    // BCD outputs (before inversion)
+    bool B0 = Gates::OR(
+                Gates::OR(W1, W3),
+                Gates::OR(
+                    Gates::OR(W5, W7),
+                    W9));
+
+    bool B1 = Gates::OR(
+                Gates::OR(W2, W3),
+                Gates::OR(W6, W7));
+
+    bool B2 = Gates::OR(
+                Gates::OR(W4, W5),
+                Gates::OR(W6, W7));
+
+    bool B3 = Gates::OR(W8, W9);
+
+    // Active LOW outputs
+    bool A0 = Gates::NOT(B0);
+    bool A1 = Gates::NOT(B1);
+    bool A2 = Gates::NOT(B2);
+    bool A3 = Gates::NOT(B3);
+
+    return {A3, A2, A1, A0};
+}
+
 int main()
 {
-    /*
-    twoLogicConverter::TruthTable(0,1,1,0);
-    cout << "\n" << twoLogicConverter::SOP_Expression(0,1,1,0);
-    cout << "\n" << twoLogicConverter::POS_Expression(0,1,1,0);
-    cout << "\n";
-    twoLogicConverter::SOP_GateConstruction(0,1,1,0);
-    twoLogicConverter::POS_GateConstruction(0,1,1,0);
-    twoLogicConverter::NANDConstruction(0,1,1,0);
-    */
-
-    threeLogicConverter::TruthTable(0, 1, 0, 1, 1, 1, 0, 0);
-    cout << threeLogicConverter::SOP_Expression(0, 1, 0, 1, 1, 1, 0, 0);
-    cout << "\n" << threeLogicConverter::POS_Expression(0, 1, 0, 1, 1, 1, 0, 0);
-
-    /*
-    fourLogicConverter::TruthTable(0,1,0,1,1,1,1,0,0,0,0,1,0,1,0,1);
-    cout << "\n" << fourLogicConverter::SOP_Expression(0,1,0,1,1,1,1,0,0,0,0,1,0,1,0,1);
-    cout << "\n" << fourLogicConverter::POS_Expression(0,1,0,1,1,1,1,0,0,0,0,1,0,1,0,1);
-    */
+    
     return 0;
 }

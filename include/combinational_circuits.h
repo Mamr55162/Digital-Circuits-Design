@@ -684,6 +684,9 @@ public:
     static bool Decoder_to_MUX(bool S1, bool S0, bool I0, bool I1, bool I2, bool I3);
     static vector<bool> _74HC42_(bool A0, bool A1, bool A2, bool A3);
     static vector<bool> BCD_to_7_Segment(bool A0, bool A1, bool A2, bool A3, bool decimal);
+    static vector<bool> Encoder_4_to_2(bool D0, bool D1, bool D2, bool D3);
+    static vector<bool> Decimal_to_BCD_Encoder(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7, bool D8 ,bool D9);
+    static vector<bool> _74HC147_(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7, bool D8 ,bool D9);
 };
 
 
