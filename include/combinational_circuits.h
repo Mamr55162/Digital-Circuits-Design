@@ -69,7 +69,7 @@ public:
     static vector<bool> Clock_Signal(double freq, double D_C, bool start_state, int length)
     {
         double period = 1 / freq;
-        double T_high = (D_C/100) * period;
+        double T_high = (D_C / 100) * period;
         double T_low = period - T_high;
         double start = 0;
         vector<bool> res;
@@ -92,10 +92,11 @@ public:
         }
         return res;
     }
-    static void Generate_Wave(const vector<bool>& A,const vector<int>& periods)
+
+    static void Generate_Wave(const vector<bool>& A, const vector<int>& periods)
     {
         string wave;
-        for (int i = 0;  i < A.size(); i++)
+        for (int i = 0; i < A.size(); i++)
         {
             if (!A[i])
             {
@@ -108,11 +109,11 @@ public:
                 for (int j = 0; j < periods[i]; j++)
                     wave += '-';
             }
-
         }
         cout << wave << endl;
     }
-    static void Timed_Wave(const vector<bool>& A,const vector<int>& periods)
+
+    static void Timed_Wave(const vector<bool>& A, const vector<int>& periods)
     {
         int start = 0;
         if (A.size() != periods.size())
@@ -754,8 +755,10 @@ public:
     static vector<bool> _74HC42_(bool A0, bool A1, bool A2, bool A3);
     static vector<bool> BCD_to_7_Segment(bool A0, bool A1, bool A2, bool A3, bool decimal);
     static vector<bool> Encoder_4_to_2(bool D0, bool D1, bool D2, bool D3);
-    static vector<bool> Decimal_to_BCD_Encoder(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7, bool D8 ,bool D9);
-    static vector<bool> _74HC147_(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7, bool D8 ,bool D9);
+    static vector<bool> Decimal_to_BCD_Encoder(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7,
+                                               bool D8, bool D9);
+    static vector<bool> _74HC147_(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7, bool D8,
+                                  bool D9);
     static vector<bool> DEMUX_1_to_4();
 };
 

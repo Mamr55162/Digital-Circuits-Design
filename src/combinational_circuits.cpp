@@ -333,16 +333,16 @@ vector<bool> combinational_circuits::Decimal_to_BCD_Encoder(
     bool D5, bool D6, bool D7, bool D8, bool D9)
 {
     bool A0 = Gates::OR(
-                Gates::OR(Gates::OR(D1, D3), Gates::OR(D5, D7)),
-                D9);
+        Gates::OR(Gates::OR(D1, D3), Gates::OR(D5, D7)),
+        D9);
 
     bool A1 = Gates::OR(
-                Gates::OR(D2, D3),
-                Gates::OR(D6, D7));
+        Gates::OR(D2, D3),
+        Gates::OR(D6, D7));
 
     bool A2 = Gates::OR(
-                Gates::OR(D4, D5),
-                Gates::OR(D6, D7));
+        Gates::OR(D4, D5),
+        Gates::OR(D6, D7));
 
     bool A3 = Gates::OR(D8, D9);
 
@@ -359,54 +359,56 @@ vector<bool> combinational_circuits::_74HC147_(
     bool W9 = Gates::NOT(D9);
 
     bool W8 = Gates::AND(D9,
-               Gates::NOT(D8));
+                         Gates::NOT(D8));
 
     bool W7 = Gates::AND(
-               Gates::AND(D9, D8),
-               Gates::NOT(D7));
+        Gates::AND(D9, D8),
+        Gates::NOT(D7));
 
     bool W6 = Gates::AND(
-               Gates::AND(Gates::AND(D9, D8), D7),
-               Gates::NOT(D6));
+        Gates::AND(Gates::AND(D9, D8), D7),
+        Gates::NOT(D6));
 
     bool W5 = Gates::AND(
-               Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6),
-               Gates::NOT(D5));
+        Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6),
+        Gates::NOT(D5));
 
     bool W4 = Gates::AND(
-               Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5),
-               Gates::NOT(D4));
+        Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5),
+        Gates::NOT(D4));
 
     bool W3 = Gates::AND(
-               Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4),
-               Gates::NOT(D3));
+        Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4),
+        Gates::NOT(D3));
 
     bool W2 = Gates::AND(
-               Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4), D3),
-               Gates::NOT(D2));
+        Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4), D3),
+        Gates::NOT(D2));
 
     bool W1 = Gates::AND(
-               Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4), D3), D2),
-               Gates::NOT(D1));
+        Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4), D3),
+                   D2),
+        Gates::NOT(D1));
 
     bool W0 = Gates::AND(
-               Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5), D4), D3), D2), D1),
-               Gates::NOT(D0));
+        Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(Gates::AND(D9, D8), D7), D6), D5),
+                                                    D4), D3), D2), D1),
+        Gates::NOT(D0));
 
     // BCD outputs (before inversion)
     bool B0 = Gates::OR(
-                Gates::OR(W1, W3),
-                Gates::OR(
-                    Gates::OR(W5, W7),
-                    W9));
+        Gates::OR(W1, W3),
+        Gates::OR(
+            Gates::OR(W5, W7),
+            W9));
 
     bool B1 = Gates::OR(
-                Gates::OR(W2, W3),
-                Gates::OR(W6, W7));
+        Gates::OR(W2, W3),
+        Gates::OR(W6, W7));
 
     bool B2 = Gates::OR(
-                Gates::OR(W4, W5),
-                Gates::OR(W6, W7));
+        Gates::OR(W4, W5),
+        Gates::OR(W6, W7));
 
     bool B3 = Gates::OR(W8, W9);
 
@@ -426,7 +428,7 @@ int main()
     //Waveform::Generate_Wave(res);
     //vector<bool> result = Waveform::Clock_Signal(1,50,0,4);
     //for (int i = 0; i < result.size(); i++)
-      //  cout << result[i];
+    //  cout << result[i];
     //cout << "\n";
     //Waveform::Generate_Wave(result);
     //Waveform::Timed_Wave({0,1, 1, 0},{1,1,1,1});
