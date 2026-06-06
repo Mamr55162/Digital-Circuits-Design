@@ -432,6 +432,12 @@ int main()
     //cout << "\n";
     //Waveform::Generate_Wave(result);
     //Waveform::Timed_Wave({0,1, 1, 0},{1,1,1,1});
-    //Waveform::Generate_Wave({0,1,1,0},{1,1,1,1});
+    //Waveform::Generate_Wave({0,1,1,0},{});
+    // vector<int> res = Waveform::Rising_Edges({0,1,0,1,1,0});
+    //for (int i = 0; i < res.size(); i++)
+    //   cout << res[i] << " ";
+    //vector<bool> res = Waveform::Concatenate({0,0,1,1,1,0},{1,1,0,0,1});
+    //for (int i = 0; i < res.size(); i++)
+    // cout << res[i];
     return 0;
 }

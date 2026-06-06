@@ -66,6 +66,11 @@ public:
 class Waveform
 {
 public:
+    // Generate a clock signal as a list of timed (timestamp, level) events.
+    // freq    : frequency in Hz
+    // D_C     : duty cycle in percent (0–100)
+    // start_state : true = start HIGH, false = start LOW
+    // length  : total simulation time (same unit as 1/freq)
     static vector<bool> Clock_Signal(double freq, double D_C, bool start_state, int length)
     {
         double period = 1 / freq;
@@ -93,9 +98,12 @@ public:
         return res;
     }
 
-    static void Generate_Wave(const vector<bool>& A, const vector<int>& periods)
+    // Draw a simple ASCII waveform; each bit occupies `periods[i]` characters.
+    static void Generate_Wave(const vector<bool>& A, vector<int> periods)
     {
         string wave;
+        if (periods.empty())
+            periods = vector<int>(A.size(), 1);
         for (int i = 0; i < A.size(); i++)
         {
             if (!A[i])
@@ -113,9 +121,10 @@ public:
         cout << wave << endl;
     }
 
-    static void Timed_Wave(const vector<bool>& A, const vector<int>& periods)
+    // Print each bit with its start timestamp.
+    static void Timed_Wave(const vector<bool>& A, const vector<double>& periods)
     {
-        int start = 0;
+        double start = 0;
         if (A.size() != periods.size())
         {
             cout << "Size mismatch!\n";
@@ -130,6 +139,153 @@ public:
                 cout << "<" << start << ", LOW>\n";
             start += periods[i];
         }
+    }
+
+    // Return indices of every rising edge (0→1 transition).
+    static vector<int> Rising_Edges(const vector<bool>& sig)
+    {
+        vector<int> edges;
+        for (int i = 1; i < sig.size(); i++)
+            if (!sig[i - 1] && sig[i]) edges.push_back(i);
+        return edges;
+    }
+
+    // Return indices of every falling edge (1→0 transition).
+    static vector<int> Falling_Edges(const vector<bool>& sig)
+    {
+        vector<int> edges;
+        for (int i = 1; i < sig.size(); i++)
+            if (sig[i - 1] && !sig[i]) edges.push_back(i);
+        return edges;
+    }
+
+    // Return indices of ALL transitions (rising or falling).
+    static vector<int> All_Edges(const vector<bool>& sig)
+    {
+        vector<int> edges;
+        for (int i = 1; i < sig.size(); i++)
+            if (sig[i] != sig[i - 1]) edges.push_back(i);
+        return edges;
+    }
+
+    // Count total number of rising edges (= clock pulse count).
+    static int Count_Pulses(const vector<bool>& sig)
+    {
+        return static_cast<int>(Rising_Edges(sig).size());
+    }
+
+    // Measure the HIGH time as a fraction of total samples (0.0 – 1.0).
+    static double Duty_Cycle(const vector<bool>& sig)
+    {
+        if (sig.empty()) return 0.0;
+        int highs = 0;
+        for (bool b : sig) if (b) highs++;
+        return static_cast<double>(highs) / sig.size();
+    }
+
+    // Longest uninterrupted HIGH run (in samples).
+    static int Max_Pulse_Width(const vector<bool>& sig)
+    {
+        int maxW = 0, cur = 0;
+        for (bool b : sig)
+        {
+            cur = b ? cur + 1 : 0;
+            maxW = max(maxW, cur);
+        }
+        return maxW;
+    }
+
+    // Count transitions per sample – a "glitch density" metric.
+    static double Glitch_Density(const vector<bool>& sig)
+    {
+        if (sig.size() < 2) return 0.0;
+        return static_cast<double>(All_Edges(sig).size()) / sig.size();
+    }
+
+    // Invert every bit in the signal.
+    static vector<bool> Invert(const vector<bool>& sig)
+    {
+        vector<bool> out(sig.size());
+        for (int i = 0; i < sig.size(); i++) out[i] = !sig[i];
+        return out;
+    }
+
+    // Bitwise AND of two equal-length signals (bus masking, enable logic).
+    static vector<bool> AND_Signals(const vector<bool>& A,
+                                    const vector<bool>& B)
+    {
+        if (A.size() != B.size()) throw invalid_argument("Size mismatch");
+        vector<bool> out(A.size());
+        for (int i = 0; i < A.size(); i++) out[i] = A[i] & B[i];
+        return out;
+    }
+
+    // Bitwise OR of two equal-length signals.
+    static vector<bool> OR_Signals(const vector<bool>& A,
+                                   const vector<bool>& B)
+    {
+        if (A.size() != B.size()) throw invalid_argument("Size mismatch");
+        vector<bool> out(A.size());
+        for (int i = 0; i < A.size(); i++) out[i] = A[i] | B[i];
+        return out;
+    }
+
+    // Bitwise XOR of two equal-length signals.
+    static vector<bool> XOR_Signals(const vector<bool>& A,
+                                    const vector<bool>& B)
+    {
+        if (A.size() != B.size()) throw invalid_argument("Size mismatch");
+        vector<bool> out(A.size());
+        for (int i = 0; i < A.size(); i++) out[i] = A[i] ^ B[i];
+        return out;
+    }
+
+    // Shift the signal right by `n` samples (inserts n LOWs at the front).
+    // Models propagation delay through a combinational path.
+    static vector<bool> Shift_right(const vector<bool>& sig, int n)
+    {
+        if (n < 0) throw invalid_argument("Delay must be >= 0");
+        if (n == 0)
+            return sig;
+        if (n >= sig.size())
+            return vector<bool>(sig.size(), false);
+        vector<bool> out(sig.size(), false);
+        for (size_t i = 0; i < sig.size() - n; i++)
+            out[i + n] = sig[i];
+        return out;
+    }
+
+    // Stretch each sample by `factor` (turns 1 sample into `factor` copies).
+    // Useful when two signals have different time resolutions
+    static vector<bool> Stretch(const vector<bool>& sig, int factor)
+    {
+        if (factor < 1) throw invalid_argument("Factor must be >= 1");
+        vector<bool> out;
+        out.reserve(sig.size() * factor);
+        for (bool b : sig)
+            for (int i = 0; i < factor; i++) out.push_back(b);
+        return out;
+    }
+
+    // Slice a sub-window [start, end] of a signal.
+    static vector<bool> Slice(const vector<bool>& sig, int start, int end)
+    {
+        if (start < 0 || end > static_cast<int>(sig.size()) || start >= end)
+            throw out_of_range("Invalid slice range");
+        vector<bool> out(sig.begin() + start, sig.begin() + end);
+        return out;
+    }
+
+    // Concatenate two signals end-to-end.
+    static vector<bool> Concatenate(const vector<bool>& A, const vector<bool>& B)
+    {
+        vector<bool> out;
+        out.resize(A.size() + B.size());
+        for (int i = 0; i < A.size(); i++)
+            out[i] = A[i];
+        for (int i = 0; i < B.size(); i++)
+            out[i + A.size()] = B[i];
+        return out;
     }
 };
 
