@@ -421,6 +421,16 @@ vector<bool> combinational_circuits::_74HC147_(
     return {A3, A2, A1, A0};
 }
 
+//Implementation of Demultiplixer 1-to-4
+vector<bool> combinational_circuits::DEMUX_1_to_4(bool D, bool S0, bool S1)
+{
+    bool Y0 = Gates::AND(Gates::AND(Gates::NOT(S1),Gates::NOT(S0)),D);
+    bool Y1 = Gates::AND(Gates::AND(Gates::NOT(S1),S0),D);
+    bool Y2 = Gates::AND(Gates::AND(S1,Gates::NOT(S0)),D);
+    bool Y3 = Gates::AND(Gates::AND(S1,S0),D);
+    return {Y0, Y1, Y2, Y3};
+}
+
 int main()
 {
     //Waveform::Generate_Wave({0,1,0,1,0,0,0,0}); //01010000
