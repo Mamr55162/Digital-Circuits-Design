@@ -1,4 +1,4 @@
-# Logic-Digital-Circuits-Design
+# Digital-Circuits-Design
 
 ## 🚀 Project Title
 A C++ implementation & Multisim simulation of combinational and sequential logic circuits.

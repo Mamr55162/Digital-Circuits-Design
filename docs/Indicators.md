@@ -18,7 +18,7 @@ It is easy, readable and manageable. For Multisim design, a LED can be found in 
 
 ***A LED_red connected to the output of an AND gate and a ground.***
 
-* **Binary & BinaryVector**: both indicators are used to print binary digits, Binary is used to print one binary bit, while BinaryVector prints a series of binary bits, while it is not applicable in Multisim, it is still useful in viewing the output as a serial of binary digits, rathet than waveform, see the following code snippet:
+* **Binary & BinaryVector**: both indicators are used to print binary digits, Binary is used to print one binary bit, while BinaryVector prints a series of binary bits, while it is not applicable in Multisim, it is still useful in viewing the output as a serial of binary digits, rather than waveform, see the following code snippet:
 ```cpp
 static void Binary(bool val)
    {
