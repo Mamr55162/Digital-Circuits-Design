@@ -922,6 +922,8 @@ public:
     static vector<bool> DEMUX_1_to_4(bool D, bool S0, bool S1);
     static vector<bool> Decoder_to_DEMUX(bool D, bool S0, bool S1, bool S2, bool S3);
     static bool SOP_Evaluator(bitset<4> current_inputs, bitset<16> active_minterms);
+    static vector<bool> Parity_Generator_4bit(bitset<4> A);
+    static vector<bool> _74HC280_(bitset<9> I);
 };
 
 

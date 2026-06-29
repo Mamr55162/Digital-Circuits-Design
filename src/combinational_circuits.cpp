@@ -672,6 +672,40 @@ bool combinational_circuits::SOP_Evaluator(bitset<4> current_inputs, bitset<16> 
     return res;
 }
 
+//Implement 4-bit Parity Generator
+vector<bool> combinational_circuits::Parity_Generator_4bit(bitset<4> A)
+{
+    bool even_parity = Gates::XOR(Gates::XOR(A[0],A[1]),Gates::XOR(A[2],A[3]));
+    bool odd_parity = Gates::NOT(even_parity);
+    return {even_parity, odd_parity};
+}
+
+//Implement 74HC280 IC 9-bit Parity Generator/Checker
+vector<bool> combinational_circuits::_74HC280_(bitset<9> I)
+{
+    // Stage 1: Group the first 8 bits into four parallel XOR gates
+    bool s1_0 = Gates::XOR(I[0], I[1]);
+    bool s1_1 = Gates::XOR(I[2], I[3]);
+    bool s1_2 = Gates::XOR(I[4], I[5]);
+    bool s1_3 = Gates::XOR(I[6], I[7]);
+
+    // Stage 2: Compress to 2 bits
+    bool s2_0 = Gates::XOR(s1_0, s1_1);
+    bool s2_1 = Gates::XOR(s1_2, s1_3);
+
+    // Stage 3: The XOR sum of the first 8 bits
+    bool s3 = Gates::XOR(s2_0, s2_1);
+
+    // Final Stage: XOR the 9th bit to get the total Odd Parity
+    bool odd_parity = Gates::XOR(s3, I[8]);
+
+    // Even parity is simply the inverted Odd Parity
+    bool even_parity = Gates::NOT(odd_parity);
+
+    // 74HC280 outputs are typically {Even, Odd}
+    return {even_parity, odd_parity};
+}
+
 int main()
 {
     //Waveform::Generate_Wave({0,1,0,1,0,0,0,0}); //01010000
