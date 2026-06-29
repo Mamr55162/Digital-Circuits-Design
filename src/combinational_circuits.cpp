@@ -20,6 +20,22 @@ vector<bool> combinational_circuits::Full_Adder(bool A, bool B, bool C)
     return {sum, carry};
 }
 
+//Implementation of Half Subtractor circuit.
+vector<bool> combinational_circuits::Half_Subtractor(bool A, bool B)
+{
+    bool Diff = Gates::XOR(A,B);
+    bool B_out = Gates::AND(Gates::NOT(A),B);
+    return {Diff, B_out};
+}
+
+//Implementation of Full Subtractor circuit.
+vector<bool> combinational_circuits::Full_Subtractor(bool A, bool B, bool B_in)
+{
+    bool Diff = Gates::XOR(Gates::XOR(A,B),B_in);
+    bool B_out = Gates::OR(Gates::AND(Gates::NOT(A),B),Gates::OR(Gates::AND(Gates::NOT(A),B_in),Gates::AND(B,B_in)));
+    return {Diff, B_out};
+}
+
 //Implementation of 74HC283 IC 4-Bit Full Adder/Subtractor.
 vector<bool> combinational_circuits::_74HC283_(bitset<4> A, bitset<4> B, bool C_in, bool stat)
 {
@@ -421,7 +437,7 @@ vector<bool> combinational_circuits::_74HC147_(
     return {A3, A2, A1, A0};
 }
 
-//Implementation of Demultiplixer 1-to-4
+//Implementation of Demultiplexer 1-to-4
 vector<bool> combinational_circuits::DEMUX_1_to_4(bool D, bool S0, bool S1)
 {
     bool Y0 = Gates::AND(Gates::AND(Gates::NOT(S1),Gates::NOT(S0)),D);
@@ -462,6 +478,67 @@ vector<bool> combinational_circuits::Decoder_to_DEMUX(bool D, bool S0, bool S1, 
     };
 }
 
+// Evaluates an SOP expression given the current input state and a truth table/minterm mask
+bool combinational_circuits::SOP_Evaluator(bitset<4> current_inputs, bitset<16> active_minterms)
+{
+    bool A0 = current_inputs[3];
+    bool A1 = current_inputs[2];
+    bool A2 = current_inputs[1];
+    bool A3 = current_inputs[0];
+    //Decode the 4 bits to their corresponding value ( 0-15 )
+    bool OUT0  = Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), Gates::NOT(A1)), Gates::NOT(A0));
+    bool OUT1  = Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), Gates::NOT(A1)), A0);
+    bool OUT2  = Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), A1), Gates::NOT(A0));
+    bool OUT3  = Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), A1), A0);
+
+    bool OUT4  = Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), A2), Gates::NOT(A1)), Gates::NOT(A0));
+    bool OUT5  = Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), A2), Gates::NOT(A1)), A0);
+    bool OUT6  = Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), A2), A1), Gates::NOT(A0));
+    bool OUT7  = Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), A2), A1), A0);
+
+    bool OUT8  = Gates::AND(Gates::AND(Gates::AND(A3, Gates::NOT(A2)), Gates::NOT(A1)), Gates::NOT(A0));
+    bool OUT9  = Gates::AND(Gates::AND(Gates::AND(A3, Gates::NOT(A2)), Gates::NOT(A1)), A0);
+    bool OUT10 = Gates::AND(Gates::AND(Gates::AND(A3, Gates::NOT(A2)), A1), Gates::NOT(A0));
+    bool OUT11 = Gates::AND(Gates::AND(Gates::AND(A3, Gates::NOT(A2)), A1), A0);
+
+    bool OUT12 = Gates::AND(Gates::AND(Gates::AND(A3, A2), Gates::NOT(A1)), Gates::NOT(A0));
+    bool OUT13 = Gates::AND(Gates::AND(Gates::AND(A3, A2), Gates::NOT(A1)), A0);
+    bool OUT14 = Gates::AND(Gates::AND(Gates::AND(A3, A2), A1), Gates::NOT(A0));
+    bool OUT15 = Gates::AND(Gates::AND(Gates::AND(A3, A2), A1), A0);
+
+    bool E0 = Gates::AND(OUT0, active_minterms[0]);
+    bool E1 = Gates::AND(OUT1, active_minterms[1]);
+    bool E2 = Gates::AND(OUT2, active_minterms[2]);
+    bool E3 = Gates::AND(OUT3, active_minterms[3]);
+
+    bool E4 = Gates::AND(OUT4, active_minterms[4]);
+    bool E5 = Gates::AND(OUT5, active_minterms[5]);
+    bool E6 = Gates::AND(OUT6, active_minterms[6]);
+    bool E7 = Gates::AND(OUT7, active_minterms[7]);
+
+    bool E8 = Gates::AND(OUT8, active_minterms[8]);
+    bool E9 = Gates::AND(OUT9, active_minterms[9]);
+    bool E10 = Gates::AND(OUT10, active_minterms[10]);
+    bool E11 = Gates::AND(OUT11, active_minterms[11]);
+
+    bool E12 = Gates::AND(OUT12, active_minterms[12]);
+    bool E13 = Gates::AND(OUT13, active_minterms[13]);
+    bool E14 = Gates::AND(OUT14, active_minterms[14]);
+    bool E15 = Gates::AND(OUT15, active_minterms[15]);
+
+    bool res = Gates::OR(
+      Gates::OR(Gates::OR(E0, E1), Gates::OR(E2, E3)),
+      Gates::OR(
+          Gates::OR(Gates::OR(E4, E5), Gates::OR(E6, E7)),
+          Gates::OR(
+              Gates::OR(Gates::OR(E8, E9), Gates::OR(E10, E11)),
+              Gates::OR(Gates::OR(E12, E13), Gates::OR(E14, E15))
+          )
+      )
+  );
+    return res;
+}
+
 int main()
 {
     //Waveform::Generate_Wave({0,1,0,1,0,0,0,0}); //01010000
@@ -480,5 +557,6 @@ int main()
     //vector<bool> res = Waveform::Concatenate({0,0,1,1,1,0},{1,1,0,0,1});
     //for (int i = 0; i < res.size(); i++)
     // cout << res[i];
+    cout << combinational_circuits::SOP_Evaluator(0b0101,0b0101101010110101);
     return 0;
 }

@@ -900,6 +900,8 @@ class combinational_circuits
 public:
     static vector<bool> Half_Adder(bool A, bool B);
     static vector<bool> Full_Adder(bool A, bool B, bool C);
+    static vector<bool> Half_Subtractor(bool A, bool B);
+    static vector<bool> Full_Subtractor(bool A, bool B, bool B_in);
     static vector<bool> _74HC283_(bitset<4> A, bitset<4> B, bool C_in, bool stat);
     static bool Identity_Comparator(bitset<4> A, bitset<4> B);
     static vector<bool> _74HC85_(bitset<4> A, bitset<4> B, bool eq = 0b1, bool larger = 0b0, bool smaller = 0b0);
@@ -917,6 +919,7 @@ public:
                                   bool D9);
     static vector<bool> DEMUX_1_to_4(bool D, bool S0, bool S1);
     static vector<bool> Decoder_to_DEMUX(bool D, bool S0, bool S1, bool S2, bool S3);
+    static bool SOP_Evaluator(bitset<4> current_inputs, bitset<16> active_minterms);
 };
 
 
