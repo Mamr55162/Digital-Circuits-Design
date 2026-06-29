@@ -58,6 +58,139 @@ vector<bool> combinational_circuits::_74HC283_(bitset<4> A, bitset<4> B, bool C_
     return result;
 }
 
+//Implementation of 2x2 Multiplier
+vector<bool> combinational_circuits::Multiplier_2x2(bitset<2> A, bitset<2> B)
+{
+    //Partial Products
+    bool P0 = Gates::AND(A[0],B[0]);
+    bool P1 = Gates::AND(A[1],B[0]);
+    bool P2 = Gates::AND(A[0],B[1]);
+    bool P3 = Gates::AND(A[1],B[1]);
+
+    //The Addition Circuit
+    bool C0 = P0;
+    bool C1 = Gates::XOR(P1,P2);
+    bool C2 = Gates::XOR(P3,Gates::AND(P1,P2));
+    bool C3 = Gates::AND(P3, Gates::AND(P1, P2));
+    return {C0, C1, C2, C3};
+}
+
+// Implementation of 4x4 Multiplier
+vector<bool> combinational_circuits::Multiplier_4x4(bitset<4> A, bitset<4> B)
+{
+    // ==========================================
+    // 1. GENERATE ALL 16 PARTIAL PRODUCTS
+    // ==========================================
+
+    // Row 0
+    bool r0_0 = Gates::AND(A[0], B[0]);
+    bool r0_1 = Gates::AND(A[1], B[0]);
+    bool r0_2 = Gates::AND(A[2], B[0]);
+    bool r0_3 = Gates::AND(A[3], B[0]);
+
+    // Row 1
+    bool r1_0 = Gates::AND(A[0], B[1]);
+    bool r1_1 = Gates::AND(A[1], B[1]);
+    bool r1_2 = Gates::AND(A[2], B[1]);
+    bool r1_3 = Gates::AND(A[3], B[1]);
+
+    // Row 2
+    bool r2_0 = Gates::AND(A[0], B[2]);
+    bool r2_1 = Gates::AND(A[1], B[2]);
+    bool r2_2 = Gates::AND(A[2], B[2]);
+    bool r2_3 = Gates::AND(A[3], B[2]);
+
+    // Row 3
+    bool r3_0 = Gates::AND(A[0], B[3]);
+    bool r3_1 = Gates::AND(A[1], B[3]);
+    bool r3_2 = Gates::AND(A[2], B[3]);
+    bool r3_3 = Gates::AND(A[3], B[3]);
+
+    // ==========================================
+    // 2. ADDITION STAGE 1
+    // ==========================================
+
+    bool M0 = r0_0;
+
+    // Half Adder
+    bool M1   = Gates::XOR(r0_1, r1_0);
+    bool c1_1 = Gates::AND(r0_1, r1_0);
+
+    // Full Adder
+    bool s1_1 = Gates::XOR(Gates::XOR(r0_2, r1_1), c1_1);
+    bool c1_2 = Gates::OR(
+        Gates::AND(r0_2, r1_1),
+        Gates::AND(Gates::XOR(r0_2, r1_1), c1_1));
+
+    // Full Adder
+    bool s1_2 = Gates::XOR(Gates::XOR(r0_3, r1_2), c1_2);
+    bool c1_3 = Gates::OR(
+        Gates::AND(r0_3, r1_2),
+        Gates::AND(Gates::XOR(r0_3, r1_2), c1_2));
+
+    // Half Adder
+    bool s1_3 = Gates::XOR(r1_3, c1_3);
+    bool c1_4 = Gates::AND(r1_3, c1_3);
+
+    // ==========================================
+    // 3. ADDITION STAGE 2
+    // ==========================================
+
+    // Half Adder
+    bool M2   = Gates::XOR(s1_1, r2_0);
+    bool c2_1 = Gates::AND(s1_1, r2_0);
+
+    // Full Adder
+    bool s2_1 = Gates::XOR(Gates::XOR(s1_2, r2_1), c2_1);
+    bool c2_2 = Gates::OR(
+        Gates::AND(s1_2, r2_1),
+        Gates::AND(Gates::XOR(s1_2, r2_1), c2_1));
+
+    // Full Adder
+    bool s2_2 = Gates::XOR(Gates::XOR(s1_3, r2_2), c2_2);
+    bool c2_3 = Gates::OR(
+        Gates::AND(s1_3, r2_2),
+        Gates::AND(Gates::XOR(s1_3, r2_2), c2_2));
+
+    // Full Adder
+    bool s2_3 = Gates::XOR(Gates::XOR(c1_4, r2_3), c2_3);
+    bool c2_4 = Gates::OR(
+        Gates::AND(c1_4, r2_3),
+        Gates::AND(Gates::XOR(c1_4, r2_3), c2_3));
+
+    // ==========================================
+    // 4. ADDITION STAGE 3
+    // ==========================================
+
+    // Half Adder
+    bool M3   = Gates::XOR(s2_1, r3_0);
+    bool c3_1 = Gates::AND(s2_1, r3_0);
+
+    // Full Adder
+    bool M4 = Gates::XOR(Gates::XOR(s2_2, r3_1), c3_1);
+    bool c3_2 = Gates::OR(
+        Gates::AND(s2_2, r3_1),
+        Gates::AND(Gates::XOR(s2_2, r3_1), c3_1));
+
+    // Full Adder
+    bool M5 = Gates::XOR(Gates::XOR(s2_3, r3_2), c3_2);
+    bool c3_3 = Gates::OR(
+        Gates::AND(s2_3, r3_2),
+        Gates::AND(Gates::XOR(s2_3, r3_2), c3_2));
+
+    // Full Adder
+    bool M6 = Gates::XOR(Gates::XOR(c2_4, r3_3), c3_3);
+    bool M7 = Gates::OR(
+        Gates::AND(c2_4, r3_3),
+        Gates::AND(Gates::XOR(c2_4, r3_3), c3_3));
+
+    // ==========================================
+    // 5. RETURN RESULT (LSB -> MSB)
+    // ==========================================
+
+    return {M0, M1, M2, M3, M4, M5, M6, M7};
+}
+
 //Implementation of Identity Comparator.
 bool combinational_circuits::Identity_Comparator(bitset<4> A, bitset<4> B)
 {
@@ -557,6 +690,9 @@ int main()
     //vector<bool> res = Waveform::Concatenate({0,0,1,1,1,0},{1,1,0,0,1});
     //for (int i = 0; i < res.size(); i++)
     // cout << res[i];
-    cout << combinational_circuits::SOP_Evaluator(0b0101,0b0101101010110101);
+   // cout << combinational_circuits::SOP_Evaluator(0b0101,0b0101101010110101);
+    vector<bool> res = combinational_circuits::Multiplier_2x2(0b11,0b10);
+    for (int i = res.size() - 1; i >= 0; i--)
+        cout << res[i];
     return 0;
 }
