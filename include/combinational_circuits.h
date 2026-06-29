@@ -916,6 +916,7 @@ public:
     static vector<bool> _74HC147_(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7, bool D8,
                                   bool D9);
     static vector<bool> DEMUX_1_to_4(bool D, bool S0, bool S1);
+    static vector<bool> Decoder_to_DEMUX(bool D, bool S0, bool S1, bool S2, bool S3);
 };
 
 

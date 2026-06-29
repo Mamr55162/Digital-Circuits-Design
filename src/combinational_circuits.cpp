@@ -431,6 +431,37 @@ vector<bool> combinational_circuits::DEMUX_1_to_4(bool D, bool S0, bool S1)
     return {Y0, Y1, Y2, Y3};
 }
 
+//Implementation of 1-to-16 DEMUX using 4-to-16 Decoder
+vector<bool> combinational_circuits::Decoder_to_DEMUX(bool D, bool S0, bool S1, bool S2, bool S3)
+{
+    bool Y0  = Gates::AND(D, Gates::AND(Gates::AND(Gates::NOT(S3), Gates::NOT(S2)), Gates::AND(Gates::NOT(S1), Gates::NOT(S0))));
+    bool Y1  = Gates::AND(D, Gates::AND(Gates::AND(Gates::NOT(S3), Gates::NOT(S2)), Gates::AND(Gates::NOT(S1), S0)));
+    bool Y2  = Gates::AND(D, Gates::AND(Gates::AND(Gates::NOT(S3), Gates::NOT(S2)), Gates::AND(S1, Gates::NOT(S0))));
+    bool Y3  = Gates::AND(D, Gates::AND(Gates::AND(Gates::NOT(S3), Gates::NOT(S2)), Gates::AND(S1, S0)));
+
+    bool Y4  = Gates::AND(D, Gates::AND(Gates::AND(Gates::NOT(S3), S2), Gates::AND(Gates::NOT(S1), Gates::NOT(S0))));
+    bool Y5  = Gates::AND(D, Gates::AND(Gates::AND(Gates::NOT(S3), S2), Gates::AND(Gates::NOT(S1), S0)));
+    bool Y6  = Gates::AND(D, Gates::AND(Gates::AND(Gates::NOT(S3), S2), Gates::AND(S1, Gates::NOT(S0))));
+    bool Y7  = Gates::AND(D, Gates::AND(Gates::AND(Gates::NOT(S3), S2), Gates::AND(S1, S0)));
+
+    bool Y8  = Gates::AND(D, Gates::AND(Gates::AND(S3, Gates::NOT(S2)), Gates::AND(Gates::NOT(S1), Gates::NOT(S0))));
+    bool Y9  = Gates::AND(D, Gates::AND(Gates::AND(S3, Gates::NOT(S2)), Gates::AND(Gates::NOT(S1), S0)));
+    bool Y10 = Gates::AND(D, Gates::AND(Gates::AND(S3, Gates::NOT(S2)), Gates::AND(S1, Gates::NOT(S0))));
+    bool Y11 = Gates::AND(D, Gates::AND(Gates::AND(S3, Gates::NOT(S2)), Gates::AND(S1, S0)));
+
+    bool Y12 = Gates::AND(D, Gates::AND(Gates::AND(S3, S2), Gates::AND(Gates::NOT(S1), Gates::NOT(S0))));
+    bool Y13 = Gates::AND(D, Gates::AND(Gates::AND(S3, S2), Gates::AND(Gates::NOT(S1), S0)));
+    bool Y14 = Gates::AND(D, Gates::AND(Gates::AND(S3, S2), Gates::AND(S1, Gates::NOT(S0))));
+    bool Y15 = Gates::AND(D, Gates::AND(Gates::AND(S3, S2), Gates::AND(S1, S0)));
+
+    return {
+        Y0, Y1, Y2, Y3,
+        Y4, Y5, Y6, Y7,
+        Y8, Y9, Y10, Y11,
+        Y12, Y13, Y14, Y15
+    };
+}
+
 int main()
 {
     //Waveform::Generate_Wave({0,1,0,1,0,0,0,0}); //01010000
