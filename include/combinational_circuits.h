@@ -924,6 +924,10 @@ public:
     static bool SOP_Evaluator(bitset<4> current_inputs, bitset<16> active_minterms);
     static vector<bool> Parity_Generator_4bit(bitset<4> A);
     static vector<bool> _74HC280_(bitset<9> I);
+    static vector<bool> Binary_to_Gray(bitset<4> B);
+    static vector<bool> Gray_to_Binary(bitset<4> G);
+    static vector<bool> BCD_to_Excess3(bitset<4> BCD);
+    static vector<bool> Excess3_to_BCD(bitset<4> EX3);
 };
 
 

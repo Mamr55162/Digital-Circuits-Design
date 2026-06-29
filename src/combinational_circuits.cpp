@@ -706,6 +706,68 @@ vector<bool> combinational_circuits::_74HC280_(bitset<9> I)
     return {even_parity, odd_parity};
 }
 
+// Code Converter from Binary to Gray
+vector<bool> combinational_circuits::Binary_to_Gray(bitset<4> B)
+{
+    bool OUT0 = B[3];
+    bool OUT1 = Gates::XOR(B[3],B[2]);
+    bool OUT2 = Gates::XOR(B[2],B[1]);
+    bool OUT3 = Gates::XOR(B[1],B[0]);
+    return {OUT3, OUT2, OUT1, OUT0};
+}
+
+// Code Converter from Gray to Binary
+vector<bool> combinational_circuits::Gray_to_Binary(bitset<4> G)
+{
+    bool OUT0 = G[3];                             // B3 = G3 (MSB)
+    bool OUT1 = Gates::XOR(OUT0, G[2]);           // B2 = B3 XOR G2
+    bool OUT2 = Gates::XOR(OUT1, G[1]);           // B1 = B2 XOR G1
+    bool OUT3 = Gates::XOR(OUT2, G[0]);           // B0 = B1 XOR G0 (LSB)
+
+    return {OUT3, OUT2, OUT1, OUT0};
+}
+
+// Code Converter from BCD to Excess-3
+vector<bool> combinational_circuits::BCD_to_Excess3(bitset<4> BCD)
+{
+    // E0 = NOT(B0)
+    bool OUT3 = Gates::NOT(BCD[0]);
+
+    // E1 = NOT(B1 XOR B0)
+    bool OUT2 = Gates::NOT(Gates::XOR(BCD[1], BCD[0]));
+
+    // Shared term for E2 and E3
+    bool OR_1_0 = Gates::OR(BCD[1], BCD[0]);
+
+    // E2 = B2 XOR (B1 OR B0)
+    bool OUT1 = Gates::XOR(BCD[2], OR_1_0);
+
+    // E3 = B3 OR (B2 AND (B1 OR B0))
+    bool OUT0 = Gates::OR(BCD[3], Gates::AND(BCD[2], OR_1_0));
+
+    return {OUT3, OUT2, OUT1, OUT0};
+}
+
+// Code Converter from Excess-3 to BCD
+vector<bool> combinational_circuits::Excess3_to_BCD(bitset<4> EX3)
+{
+    // B0 = NOT(E0)
+    bool OUT3 = Gates::NOT(EX3[0]);
+
+    // B1 = E1 XOR E0
+    bool OUT2 = Gates::XOR(EX3[1], EX3[0]);
+
+    // Shared term for B2 and B3
+    bool AND_1_0 = Gates::AND(EX3[1], EX3[0]);
+
+    // B2 = NOT(E2 XOR (E1 AND E0))  -> XNOR logic
+    bool OUT1 = Gates::NOT(Gates::XOR(EX3[2], AND_1_0));
+
+    // B3 = E3 AND (E2 OR (E1 AND E0))
+    bool OUT0 = Gates::AND(EX3[3], Gates::OR(EX3[2], AND_1_0));
+
+    return {OUT3, OUT2, OUT1, OUT0};
+}
 int main()
 {
     //Waveform::Generate_Wave({0,1,0,1,0,0,0,0}); //01010000
@@ -725,7 +787,7 @@ int main()
     //for (int i = 0; i < res.size(); i++)
     // cout << res[i];
    // cout << combinational_circuits::SOP_Evaluator(0b0101,0b0101101010110101);
-    vector<bool> res = combinational_circuits::Multiplier_2x2(0b11,0b10);
+    vector<bool> res = combinational_circuits::Binary_to_Gray(0b1011);
     for (int i = res.size() - 1; i >= 0; i--)
         cout << res[i];
     return 0;
