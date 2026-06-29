@@ -904,7 +904,7 @@ public:
     static vector<bool> Full_Subtractor(bool A, bool B, bool B_in);
     static vector<bool> _74HC283_(bitset<4> A, bitset<4> B, bool C_in, bool stat);
     static vector<bool> Multiplier_2x2(bitset<2> A, bitset<2> B);
-    static vector<bool> Multiplier_4x4(bitset<4> A, bitset<4> B);
+    static vector<bool> Multiplier_4x4(bitset<4> A, bitset<4> B); //
     static bool Identity_Comparator(bitset<4> A, bitset<4> B);
     static vector<bool> _74HC85_(bitset<4> A, bitset<4> B, bool eq = 0b1, bool larger = 0b0, bool smaller = 0b0);
     static bool MUX_4_to_1(bitset<4> A, bool S0, bool S1);
