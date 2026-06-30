@@ -894,6 +894,158 @@ public:
     }
 };
 
+class ALU_74181
+{
+public:
+    static vector<bool> _74HC181_(bitset<4> A, bitset<4> B,
+                                  bitset<4> S, bool M, bool C_in)
+    {
+        bool F[4] = {false, false, false, false};
+        bool C_out = false;
+
+        if (M)
+        {
+            // ---------------- LOGIC MODE (M = 1) ----------------
+            // Each output bit is an independent boolean function of
+            // Ai, Bi selected by S3..S0 (per-bit, no carry chain).
+            for (int i = 0; i < 4; i++)
+                F[i] = Logic_Function(A[i], B[i], S);
+
+            C_out = false; // carry has no meaning in logic mode
+        }
+        else
+        {
+            // ------------- ARITHMETIC MODE (M = 0) ---------------
+            // Build the per-bit "pseudo-sum" inputs (Xi, Yi) defined
+            // by the 74181 function table, then ripple-add them with
+            // the real carry chain — same structure as your
+            // Full_Adder, just with select-dependent operands.
+            bool carry = C_in;
+            for (int i = 0; i < 4; i++)
+            {
+                bool X, Y;
+                Arithmetic_Operands(A[i], B[i], S, X, Y);
+
+                bool sum   = Gates::XOR(Gates::XOR(X, Y), carry);
+                bool cnext = Gates::OR(Gates::AND(X, Y),
+                                       Gates::AND(Gates::XOR(X, Y), carry));
+
+                F[i] = sum;
+                carry = cnext;
+            }
+            C_out = carry;
+        }
+
+        // A = B comparator output.
+        // On the real 74181, the A=B pin is only meaningful when the ALU is
+        // configured for subtraction (S=0110, M=0, Cin=1): in that mode it
+        // goes HIGH exactly when F == 0000, i.e. A - B == 0.
+        // We reproduce that: A_eq_B is HIGH iff every result bit is LOW.
+        bool A_eq_B = Gates::NOT(Gates::OR(Gates::OR(F[0], F[1]), Gates::OR(F[2], F[3])));
+
+        return { F[0], F[1], F[2], F[3], C_out, A_eq_B };
+    }
+
+private:
+    // ---- LOGIC MODE function table (M=1) ----
+    // S3 S2 S1 S0 | F (per bit, in terms of Ai, Bi)
+    //  0  0  0  0 | NOT Ai
+    //  0  0  0  1 | NOT(Ai OR Bi)        (NOR)
+    //  0  0  1  0 | (NOT Ai) AND Bi
+    //  0  0  1  1 | 0
+    //  0  1  0  0 | NOT(Ai AND Bi)       (NAND)
+    //  0  1  0  1 | NOT Bi
+    //  0  1  1  0 | Ai XOR Bi
+    //  0  1  1  1 | Ai AND (NOT Bi)
+    //  1  0  0  0 | (NOT Ai) OR Bi
+    //  1  0  0  1 | Ai XNOR Bi
+    //  1  0  1  0 | Bi
+    //  1  0  1  1 | Ai AND Bi
+    //  1  1  0  0 | 1
+    //  1  1  0  1 | Ai OR (NOT Bi)
+    //  1  1  1  0 | Ai OR Bi
+    //  1  1  1  1 | Ai
+    static bool Logic_Function(bool Ai, bool Bi, const bitset<4>& S)
+    {
+        int sel = (S[3] << 3) | (S[2] << 2) | (S[1] << 1) | S[0];
+
+        switch (sel)
+        {
+            case 0:  return Gates::NOT(Ai);
+            case 1:  return Gates::NOT(Gates::OR(Ai, Bi));
+            case 2:  return Gates::AND(Gates::NOT(Ai), Bi);
+            case 3:  return false;
+            case 4:  return Gates::NOT(Gates::AND(Ai, Bi));
+            case 5:  return Gates::NOT(Bi);
+            case 6:  return Gates::XOR(Ai, Bi);
+            case 7:  return Gates::AND(Ai, Gates::NOT(Bi));
+            case 8:  return Gates::OR(Gates::NOT(Ai), Bi);
+            case 9:  return Gates::XNOR(Ai, Bi);
+            case 10: return Bi;
+            case 11: return Gates::AND(Ai, Bi);
+            case 12: return true;
+            case 13: return Gates::OR(Ai, Gates::NOT(Bi));
+            case 14: return Gates::OR(Ai, Bi);
+            case 15: return Ai;
+        }
+        return false; // unreachable
+    }
+
+    // ---- ARITHMETIC MODE operand table (M=0) ----
+    // The 74181 computes each arithmetic function by feeding a
+    // select-dependent pair (Xi, Yi) into a full-adder carry chain.
+    // This table reproduces the datasheet's active-HIGH arithmetic
+    // function list at C_in = 0 (carry chain handles the +1/+Cin part):
+    //
+    //  S3210 | Function (Cin=0)         | Xi          Yi
+    //   0000 | F = A                    | Ai          0
+    //   0001 | F = A OR B               | Ai OR Bi    0
+    //   0010 | F = A OR NOT B           | Ai OR ~Bi   0
+    //   0011 | F = minus 1 (all 1s)     | 1           0   (with carry forced)
+    //   0100 | F = A + (A AND NOT B)    | Ai          Ai AND ~Bi
+    //   0101 | F = (A OR B)+(A AND ~B)  | Ai OR Bi    Ai AND ~Bi
+    //   0110 | F = A minus B minus 1    | Ai          ~Bi   (subtract form)
+    //   0111 | F = (A AND NOT B) - 1    | Ai AND ~Bi  1     (subtract form)
+    //   1000 | F = A + (A AND B)        | Ai          Ai AND Bi
+    //   1001 | F = A + B                | Ai          Bi
+    //   1010 | F = (A OR ~B)+(A AND B)  | Ai OR ~Bi   Ai AND Bi
+    //   1011 | F = A AND B  minus 1     | Ai AND Bi   1   (subtract form)
+    //   1100 | F = A + A                | Ai          Ai
+    //   1101 | F = (A OR B) + A         | Ai OR Bi    Ai
+    //   1110 | F = (A OR ~B) + A        | Ai OR ~Bi   Ai
+    //   1111 | F = A minus 1            | Ai          1  (subtract form)
+    //
+    // To keep this implementation tractable with a simple ripple chain,
+    // we directly express each line's X/Y pair (subtract lines use the
+    // ones'-complement trick: A - B - 1 == A + (~B) + Cin, so Y becomes
+    // the complement of B and the chain handles the rest).
+    static void Arithmetic_Operands(bool Ai, bool Bi, const bitset<4>& S,
+                                    bool& X, bool& Y)
+    {
+        int sel = (S[3] << 3) | (S[2] << 2) | (S[1] << 1) | S[0];
+
+        switch (sel)
+        {
+            case 0:  X = Ai;                              Y = false;            break; // A
+            case 1:  X = Gates::OR(Ai, Bi);               Y = false;            break; // A+B
+            case 2:  X = Gates::OR(Ai, Gates::NOT(Bi));   Y = false;            break; // A+~B
+            case 3:  X = true;                            Y = false;            break; // minus 1
+            case 4:  X = Ai;                               Y = Gates::AND(Ai, Gates::NOT(Bi)); break; // A+A.~B
+            case 5:  X = Gates::OR(Ai, Bi);                Y = Gates::AND(Ai, Gates::NOT(Bi)); break;
+            case 6:  X = Ai;                               Y = Gates::NOT(Bi);  break; // A - B - 1
+            case 7:  X = Gates::AND(Ai, Gates::NOT(Bi));   Y = true;            break; // A.~B - 1
+            case 8:  X = Ai;                               Y = Gates::AND(Ai, Bi); break; // A+A.B
+            case 9:  X = Ai;                               Y = Bi;              break; // A+B
+            case 10: X = Gates::OR(Ai, Gates::NOT(Bi));    Y = Gates::AND(Ai, Bi); break;
+            case 11: X = Gates::AND(Ai, Bi);               Y = true;            break; // A.B - 1
+            case 12: X = Ai;                               Y = Ai;              break; // A+A
+            case 13: X = Gates::OR(Ai, Bi);                Y = Ai;              break;
+            case 14: X = Gates::OR(Ai, Gates::NOT(Bi));    Y = Ai;              break;
+            case 15: X = Ai;                               Y = true;            break; // A - 1
+            default: X = false; Y = false; break; // unreachable
+        }
+    }
+};
 
 class combinational_circuits
 {

@@ -988,6 +988,8 @@ bool combinational_circuits::Zero_Detect(bitset<4> A)
     bool result = Gates::OR(Gates::OR(A[0],A[1]),Gates::OR(A[2],A[3]));
     return Gates::NOT(result);
 }
+
+
 int main()
 {
     //Waveform::Generate_Wave({0,1,0,1,0,0,0,0}); //01010000
