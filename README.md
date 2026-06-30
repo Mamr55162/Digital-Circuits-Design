@@ -146,12 +146,16 @@ The project follows a modular object-oriented architecture.
 ```
 Digital-Circuits-Design/
 │
-├── combinational_circuits.h
-├── combinational_circuits.cpp
+├── include/
+|   ├── combinational_circuits.h
+|
+├── src/
+│   ├── combinational_circuits.cpp
+|
+├── test_cases/
+|   ├── test_combinational_circuits.cpp
 │
-├── test_combinational_circuits.cpp
-│
-├── Multisim/
+├── multisim-design/
 │   ├── Half Adder
 │   ├── Full Adder
 │   ├── Multiplexers
