@@ -903,6 +903,7 @@ public:
     static vector<bool> Half_Subtractor(bool A, bool B);
     static vector<bool> Full_Subtractor(bool A, bool B, bool B_in);
     static vector<bool> _74HC283_(bitset<4> A, bitset<4> B, bool C_in, bool stat);
+    static vector<bool> Carry_Lookahead_Adder_4bit(bitset<4> A, bitset<4> B, bool C_in);
     static vector<bool> Multiplier_2x2(bitset<2> A, bitset<2> B);
     static vector<bool> Multiplier_4x4(bitset<4> A, bitset<4> B); //
     static bool Identity_Comparator(bitset<4> A, bitset<4> B);
@@ -917,17 +918,22 @@ public:
     static vector<bool> Encoder_4_to_2(bool D0, bool D1, bool D2, bool D3);
     static vector<bool> Decimal_to_BCD_Encoder(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7,
                                                bool D8, bool D9);
+    static vector<bool> _74HC148_(bitset<8> D);
     static vector<bool> _74HC147_(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7, bool D8,
                                   bool D9);
     static vector<bool> DEMUX_1_to_4(bool D, bool S0, bool S1);
     static vector<bool> Decoder_to_DEMUX(bool D, bool S0, bool S1, bool S2, bool S3);
     static bool SOP_Evaluator(bitset<4> current_inputs, bitset<16> active_minterms);
     static vector<bool> Parity_Generator_4bit(bitset<4> A);
+    static bool Parity_Checker_4bit(bitset<4> A, bool received_parity, bool even);
     static vector<bool> _74HC280_(bitset<9> I);
     static vector<bool> Binary_to_Gray(bitset<4> B);
     static vector<bool> Gray_to_Binary(bitset<4> G);
     static vector<bool> BCD_to_Excess3(bitset<4> BCD);
     static vector<bool> Excess3_to_BCD(bitset<4> EX3);
+    static vector<bool> Hex_to_7_Segment(bitset<4> hex);
+    static bool Overflow_Detect(bitset<4> A, bitset<4> B, bool C_in,bool addition);
+    static bool Zero_Detect(bitset<4> A);
 };
 
 

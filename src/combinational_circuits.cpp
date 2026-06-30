@@ -35,27 +35,67 @@ vector<bool> combinational_circuits::Full_Subtractor(bool A, bool B, bool B_in)
     bool B_out = Gates::OR(Gates::AND(Gates::NOT(A),B),Gates::OR(Gates::AND(Gates::NOT(A),B_in),Gates::AND(B,B_in)));
     return {Diff, B_out};
 }
-
 //Implementation of 74HC283 IC 4-Bit Full Adder/Subtractor.
 vector<bool> combinational_circuits::_74HC283_(bitset<4> A, bitset<4> B, bool C_in, bool stat)
 {
-    //XOR inputs, if stat == 1 -> (1's Compliment).
-    B[0] = Gates::XOR(B[0], stat);
-    B[1] = Gates::XOR(B[1], stat);
-    B[2] = Gates::XOR(B[2], stat);
-    B[3] = Gates::XOR(B[3], stat);
-
-    C_in = stat; //If stat == 1, the carry will add 1 to the LSBs (2's Compliment).
     vector<bool> result(5);
-    vector<bool> sum = {0b0, C_in};
+
+    // 1. Conditional inversion of B (1's complement if stat == 1)
+    bitset<4> B_conditioned;
     for (int i = 0; i < 4; i++)
     {
-        sum = Full_Adder(A[i], B[i], sum[1]);
-        result[result.size() - i - 1] = sum[0];
+        B_conditioned[i] = Gates::XOR(B[i], stat);
     }
-    if (stat == 0) //When working as a subtractor (stat == 1) ignore the MSB.
-        result[0] = sum[1];
+
+    // 2. Derive the correct initial carry-in
+    // XORing C_in with stat perfectly handles both standalone and cascaded operations.
+    bool carry = Gates::XOR(C_in, stat);
+
+    // 3. Ripple-carry adder loop
+    for (int i = 0; i < 4; i++)
+    {
+        // Assuming Full_Adder returns {Sum, Cout}
+        vector<bool> sum = Full_Adder(A[i], B_conditioned[i], carry);
+        result[5 - i - 1] = sum[0]; // Store Sum bit (S0 to S3)
+        carry = sum[1];             // Propagate Carry to next stage
+    }
+
+    // 4. A real 74HC283 IC ALWAYS outputs its final carry-out (C4)
+    result[0] = carry;
+
     return result;
+}
+
+//Implement 4-bit Carry Lookahead Adder
+vector<bool> combinational_circuits::Carry_Lookahead_Adder_4bit(bitset<4> A, bitset<4> B, bool C_in)
+{
+    // Generate (G) terms
+    bool G0 = Gates::AND(A[0], B[0]);
+    bool G1 = Gates::AND(A[1], B[1]);
+    bool G2 = Gates::AND(A[2], B[2]);
+    bool G3 = Gates::AND(A[3], B[3]);
+
+    // Propagate (P) terms
+    bool P0 = Gates::XOR(A[0], B[0]);
+    bool P1 = Gates::XOR(A[1], B[1]);
+    bool P2 = Gates::XOR(A[2], B[2]);
+    bool P3 = Gates::XOR(A[3], B[3]);
+
+    // Carry Lookahead Logic Generator
+    // C_n+1 = G_n + P_n·C_n
+    bool C1 = Gates::OR(G0, Gates::AND(P0, C_in));
+    bool C2 = Gates::OR(G1, Gates::AND(P1, C1));
+    bool C3 = Gates::OR(G2, Gates::AND(P2, C2));
+    bool C4 = Gates::OR(G3, Gates::AND(P3, C3));
+
+    // Sum Logic: S_n = P_n XOR C_n
+    bool S0 = Gates::XOR(P0, C_in);
+    bool S1 = Gates::XOR(P1, C1);
+    bool S2 = Gates::XOR(P2, C2);
+    bool S3 = Gates::XOR(P3, C3);
+
+    // Order: {C_out, S3, S2, S1, S0}
+    return {C4, S3, S2, S1, S0};
 }
 
 //Implementation of 2x2 Multiplier
@@ -498,6 +538,60 @@ vector<bool> combinational_circuits::Decimal_to_BCD_Encoder(
     return {A3, A2, A1, A0};
 }
 
+// Implementation of an Active-HIGH 8-to-3 Priority Encoder.
+// D[7] has the highest priority, D[0] has the lowest.
+vector<bool> combinational_circuits::_74HC148_(bitset<8> D)
+{
+    // 1. Generate "Winner Lines" (W) using a sequential "None Higher" (N) cascade.
+    // An active bit only wins if no higher-priority bit has blocked its path.
+
+    bool W7 = D[7];
+    bool N7 = Gates::NOT(D[7]); // N7 = True only if D[7] is inactive
+
+    bool W6 = Gates::AND(D[6], N7);
+    bool N6 = Gates::AND(N7, Gates::NOT(D[6]));
+
+    bool W5 = Gates::AND(D[5], N6);
+    bool N5 = Gates::AND(N6, Gates::NOT(D[5]));
+
+    bool W4 = Gates::AND(D[4], N5);
+    bool N4 = Gates::AND(N5, Gates::NOT(D[4]));
+
+    bool W3 = Gates::AND(D[3], N4);
+    bool N3 = Gates::AND(N4, Gates::NOT(D[3]));
+
+    bool W2 = Gates::AND(D[2], N3);
+    bool N2 = Gates::AND(N3, Gates::NOT(D[2]));
+
+    bool W1 = Gates::AND(D[1], N2);
+    bool N1 = Gates::AND(N2, Gates::NOT(D[1]));
+
+    bool W0 = Gates::AND(D[0], N1);
+
+    // 2. Encode the single active Winner line into 3-bit binary (Y2, Y1, Y0)
+
+    // Y2 is HIGH for winners 4, 5, 6, 7
+    bool Y2 = Gates::OR(
+        Gates::OR(W4, W5),
+        Gates::OR(W6, W7)
+    );
+
+    // Y1 is HIGH for winners 2, 3, 6, 7
+    bool Y1 = Gates::OR(
+        Gates::OR(W2, W3),
+        Gates::OR(W6, W7)
+    );
+
+    // Y0 is HIGH for winners 1, 3, 5, 7
+    bool Y0 = Gates::OR(
+        Gates::OR(W1, W3),
+        Gates::OR(W5, W7)
+    );
+
+    // Return ordered as {MSB, Middle, LSB} -> {Y2, Y1, Y0}
+    return {Y2, Y1, Y0};
+}
+
 //Implementation of 74HC147 IC, a Decimal-to-BCD priority Encoder with active low inputs and outputs.
 vector<bool> combinational_circuits::_74HC147_(
     bool D0, bool D1, bool D2, bool D3, bool D4,
@@ -672,13 +766,22 @@ bool combinational_circuits::SOP_Evaluator(bitset<4> current_inputs, bitset<16> 
     return res;
 }
 
-//Implement 4-bit Parity Generator
+//Implement 4-bit Parity Generator.
 vector<bool> combinational_circuits::Parity_Generator_4bit(bitset<4> A)
 {
     bool even_parity = Gates::XOR(Gates::XOR(A[0],A[1]),Gates::XOR(A[2],A[3]));
     bool odd_parity = Gates::NOT(even_parity);
     return {even_parity, odd_parity};
 }
+
+//Implement 4-bit Parity Checker.
+bool combinational_circuits::Parity_Checker_4bit(bitset<4> A, bool received_parity, bool even)
+{
+    bool data_parity = Gates::XOR(Gates::XOR(A[0],A[1]),Gates::XOR(A[2],A[3]));
+    bool parity_mismatch = Gates::XOR(data_parity,received_parity);
+    return Gates::XOR(Gates::NOT(even),parity_mismatch);
+}
+
 
 //Implement 74HC280 IC 9-bit Parity Generator/Checker
 vector<bool> combinational_circuits::_74HC280_(bitset<9> I)
@@ -768,6 +871,123 @@ vector<bool> combinational_circuits::Excess3_to_BCD(bitset<4> EX3)
 
     return {OUT3, OUT2, OUT1, OUT0};
 }
+
+// Implementation of a Hexadecimal-to-7-Segment Decoder (0-9, A-F)
+// Standard Active-HIGH outputs for Common Cathode displays.
+vector<bool> combinational_circuits::Hex_to_7_Segment(bitset<4> hex)
+{
+    // Extract inputs for readability (A3 is MSB, A0 is LSB)
+    bool A3 = hex[3];
+    bool A2 = hex[2];
+    bool A1 = hex[1];
+    bool A0 = hex[0];
+
+    // 1. Full 16-State Minterm Decoding
+    bool D0  = Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), Gates::AND(Gates::NOT(A1), Gates::NOT(A0)));
+    bool D1  = Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), Gates::AND(Gates::NOT(A1), A0));
+    bool D2  = Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), Gates::AND(A1, Gates::NOT(A0)));
+    bool D3  = Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), Gates::AND(A1, A0));
+
+    bool D4  = Gates::AND(Gates::AND(Gates::NOT(A3), A2), Gates::AND(Gates::NOT(A1), Gates::NOT(A0)));
+    bool D5  = Gates::AND(Gates::AND(Gates::NOT(A3), A2), Gates::AND(Gates::NOT(A1), A0));
+    bool D6  = Gates::AND(Gates::AND(Gates::NOT(A3), A2), Gates::AND(A1, Gates::NOT(A0)));
+    bool D7  = Gates::AND(Gates::AND(Gates::NOT(A3), A2), Gates::AND(A1, A0));
+
+    bool D8  = Gates::AND(Gates::AND(A3, Gates::NOT(A2)), Gates::AND(Gates::NOT(A1), Gates::NOT(A0)));
+    bool D9  = Gates::AND(Gates::AND(A3, Gates::NOT(A2)), Gates::AND(Gates::NOT(A1), A0));
+    bool D10 = Gates::AND(Gates::AND(A3, Gates::NOT(A2)), Gates::AND(A1, Gates::NOT(A0))); // A
+    bool D11 = Gates::AND(Gates::AND(A3, Gates::NOT(A2)), Gates::AND(A1, A0));           // b
+
+    bool D12 = Gates::AND(Gates::AND(A3, A2), Gates::AND(Gates::NOT(A1), Gates::NOT(A0))); // C
+    bool D13 = Gates::AND(Gates::AND(A3, A2), Gates::AND(Gates::NOT(A1), A0));           // d
+    bool D14 = Gates::AND(Gates::AND(A3, A2), Gates::AND(A1, Gates::NOT(A0)));           // E
+    bool D15 = Gates::AND(Gates::AND(A3, A2), Gates::AND(A1, A0));                       // F
+
+    // 2. Segment Logic Routing
+
+    // Segment A (ON for: 0, 2, 3, 5, 6, 7, 8, 9, A, C, E, F)
+    bool a_p1 = Gates::OR(Gates::OR(D0, D2), Gates::OR(D3, D5));
+    bool a_p2 = Gates::OR(Gates::OR(D6, D7), Gates::OR(D8, D9));
+    bool a_p3 = Gates::OR(Gates::OR(D10, D12), Gates::OR(D14, D15));
+    bool a = Gates::OR(Gates::OR(a_p1, a_p2), a_p3);
+
+    // Segment B (ON for: 0, 1, 2, 3, 4, 7, 8, 9, A, d)
+    bool b_p1 = Gates::OR(Gates::OR(D0, D1), Gates::OR(D2, D3));
+    bool b_p2 = Gates::OR(Gates::OR(D4, D7), Gates::OR(D8, D9));
+    bool b = Gates::OR(Gates::OR(b_p1, b_p2), Gates::OR(D10, D13));
+
+    // Segment C (ON for: 0, 1, 3, 4, 5, 6, 7, 8, 9, A, b, d)
+    bool c_p1 = Gates::OR(Gates::OR(D0, D1), Gates::OR(D3, D4));
+    bool c_p2 = Gates::OR(Gates::OR(D5, D6), Gates::OR(D7, D8));
+    bool c_p3 = Gates::OR(Gates::OR(D9, D10), Gates::OR(D11, D13));
+    bool c = Gates::OR(Gates::OR(c_p1, c_p2), c_p3);
+
+    // Segment D (ON for: 0, 2, 3, 5, 6, 8, 9, b, C, d, E)
+    bool d_p1 = Gates::OR(Gates::OR(D0, D2), Gates::OR(D3, D5));
+    bool d_p2 = Gates::OR(Gates::OR(D6, D8), Gates::OR(D9, D11));
+    bool d_p3 = Gates::OR(Gates::OR(D12, D13), D14);
+    bool d = Gates::OR(Gates::OR(d_p1, d_p2), d_p3);
+
+    // Segment E (ON for: 0, 2, 6, 8, A, b, C, d, E, F)
+    bool e_p1 = Gates::OR(Gates::OR(D0, D2), Gates::OR(D6, D8));
+    bool e_p2 = Gates::OR(Gates::OR(D10, D11), Gates::OR(D12, D13));
+    bool e = Gates::OR(Gates::OR(e_p1, e_p2), Gates::OR(D14, D15));
+
+    // Segment F (ON for: 0, 4, 5, 6, 8, 9, A, b, C, E, F)
+    bool f_p1 = Gates::OR(Gates::OR(D0, D4), Gates::OR(D5, D6));
+    bool f_p2 = Gates::OR(Gates::OR(D8, D9), Gates::OR(D10, D11));
+    bool f_p3 = Gates::OR(Gates::OR(D12, D14), D15);
+    bool f = Gates::OR(Gates::OR(f_p1, f_p2), f_p3);
+
+    // Segment G (ON for: 2, 3, 4, 5, 6, 8, 9, A, b, d, E, F)
+    bool g_p1 = Gates::OR(Gates::OR(D2, D3), Gates::OR(D4, D5));
+    bool g_p2 = Gates::OR(Gates::OR(D6, D8), Gates::OR(D9, D10));
+    bool g_p3 = Gates::OR(Gates::OR(D11, D13), Gates::OR(D14, D15));
+    bool g = Gates::OR(Gates::OR(g_p1, g_p2), g_p3);
+
+    // Decimal Point (Hardcoded to OFF since it's not in the input parameters)
+    bool dp = 0;
+
+    // Return all 8 pins to maintain interface compatibility with your display wrapper
+    return {a, b, c, d, e, f, g, dp};
+}
+
+//Overflow Detection
+bool combinational_circuits::Overflow_Detect(bitset<4> A, bitset<4> B, bool C_in, bool addition)
+{
+    bool A_sign = A[3];
+    bool B_sign = B[3];
+    if (addition)
+    {
+        vector<bool> add = combinational_circuits::_74HC283_(A,B,C_in,0);
+        bool Sum_sign = add[1];
+        bool signs_match = Gates::NOT(Gates::XOR(A_sign, B_sign));
+        bool sum_is_wrong = Gates::XOR(A_sign, Sum_sign);
+
+        return Gates::AND(signs_match, sum_is_wrong);
+    }
+    else
+    {
+         vector<bool> diff = combinational_circuits::_74HC283_(A,B,C_in,1);
+         bool Sum_sign = diff[1];
+        // For subtraction, you are adding the 2's complement of B.
+        // Therefore, the effective sign of B entering the adder is inverted.
+        bool B_eff_sign = Gates::NOT(B_sign);
+
+        // V = (A_sign XNOR B_eff_sign) AND (A_sign XOR Sum_sign)
+        bool signs_match = Gates::NOT(Gates::XOR(A_sign, B_eff_sign));
+        bool sum_is_wrong = Gates::XOR(A_sign, Sum_sign);
+
+        return Gates::AND(signs_match, sum_is_wrong);
+    }
+}
+
+//Detect if a 4-bit number is fully composed of zeros.
+bool combinational_circuits::Zero_Detect(bitset<4> A)
+{
+    bool result = Gates::OR(Gates::OR(A[0],A[1]),Gates::OR(A[2],A[3]));
+    return Gates::NOT(result);
+}
 int main()
 {
     //Waveform::Generate_Wave({0,1,0,1,0,0,0,0}); //01010000
@@ -787,8 +1007,13 @@ int main()
     //for (int i = 0; i < res.size(); i++)
     // cout << res[i];
    // cout << combinational_circuits::SOP_Evaluator(0b0101,0b0101101010110101);
-    vector<bool> res = combinational_circuits::Binary_to_Gray(0b1011);
-    for (int i = res.size() - 1; i >= 0; i--)
-        cout << res[i];
+   // vector<bool> res = combinational_circuits::Binary_to_Gray(0b1011);
+   // for (int i = res.size() - 1; i >= 0; i--)
+    //    cout << res[i];
+   //cout << combinational_circuits::Overflow_Detect(0b0101, 0b0110,false,true);
+   // vector<bool> res = combinational_circuits::_74HC283_(0b0101,0b0101,0,0);
+   // cout << res[1];
+    //cout << combinational_circuits::Zero_Detect(0b0010);
+
     return 0;
 }
