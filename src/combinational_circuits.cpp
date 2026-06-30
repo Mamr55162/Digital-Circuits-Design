@@ -4,6 +4,7 @@
 #include <vector>
 
 //Implement the Half Adder circuit.
+//Returns {Sum, Carry}.
 vector<bool> combinational_circuits::Half_Adder(bool A, bool B)
 {
     //Compute addition by XORing and carry by ANDing.
@@ -13,6 +14,7 @@ vector<bool> combinational_circuits::Half_Adder(bool A, bool B)
 }
 
 //Implementation of Full Adder circuit.
+//Returns {Sum, Carry}.
 vector<bool> combinational_circuits::Full_Adder(bool A, bool B, bool C)
 {
     bool sum = Gates::XOR(Gates::XOR(A, B), C);
@@ -21,6 +23,7 @@ vector<bool> combinational_circuits::Full_Adder(bool A, bool B, bool C)
 }
 
 //Implementation of Half Subtractor circuit.
+//Returns {Diff, Borrow}.
 vector<bool> combinational_circuits::Half_Subtractor(bool A, bool B)
 {
     bool Diff = Gates::XOR(A,B);
@@ -29,6 +32,7 @@ vector<bool> combinational_circuits::Half_Subtractor(bool A, bool B)
 }
 
 //Implementation of Full Subtractor circuit.
+//Returns {Diff, Borrow}.
 vector<bool> combinational_circuits::Full_Subtractor(bool A, bool B, bool B_in)
 {
     bool Diff = Gates::XOR(Gates::XOR(A,B),B_in);
@@ -36,9 +40,13 @@ vector<bool> combinational_circuits::Full_Subtractor(bool A, bool B, bool B_in)
     return {Diff, B_out};
 }
 //Implementation of 74HC283 IC 4-Bit Full Adder/Subtractor.
+//stat = 0 → perform A + B + C_in (addition).
+//stat = 1 → perform A - B - C_in (subtraction, achieved by 1's-complementing B
+//           and toggling the carry-in to form the 2's complement).
+//Result layout: result[0] = C_out (carry-out), result[1..4] = S3,S2,S1,S0.
 vector<bool> combinational_circuits::_74HC283_(bitset<4> A, bitset<4> B, bool C_in, bool stat)
 {
-    vector<bool> result(5);
+    vector<bool> result(5);   //5-bit output: 1 carry + 4 sum bits
 
     // 1. Conditional inversion of B (1's complement if stat == 1)
     bitset<4> B_conditioned;
@@ -67,6 +75,9 @@ vector<bool> combinational_circuits::_74HC283_(bitset<4> A, bitset<4> B, bool C_
 }
 
 //Implement 4-bit Carry Lookahead Adder
+//Returns {C_out, S3, S2, S1, S0}.
+//Carry-lookahead uses G_i = A_i·B_i and P_i = A_i XOR B_i to compute every carry
+//in parallel (depth = O(1) per carry) instead of rippling through 4 stages.
 vector<bool> combinational_circuits::Carry_Lookahead_Adder_4bit(bitset<4> A, bitset<4> B, bool C_in)
 {
     // Generate (G) terms
@@ -99,6 +110,7 @@ vector<bool> combinational_circuits::Carry_Lookahead_Adder_4bit(bitset<4> A, bit
 }
 
 //Implementation of 2x2 Multiplier
+//Computes A·B as a 4-bit product. Returns {M0, M1, M2, M3} (LSB first).
 vector<bool> combinational_circuits::Multiplier_2x2(bitset<2> A, bitset<2> B)
 {
     //Partial Products
@@ -116,6 +128,8 @@ vector<bool> combinational_circuits::Multiplier_2x2(bitset<2> A, bitset<2> B)
 }
 
 // Implementation of 4x4 Multiplier
+// Array multiplier: 16 partial products → 3 stages of half/full adders.
+// Returns {M0..M7} (LSB first), 8-bit product.
 vector<bool> combinational_circuits::Multiplier_4x4(bitset<4> A, bitset<4> B)
 {
     // ==========================================
@@ -232,6 +246,7 @@ vector<bool> combinational_circuits::Multiplier_4x4(bitset<4> A, bitset<4> B)
 }
 
 //Implementation of Identity Comparator.
+//Returns true iff every bit of A matches the corresponding bit of B (4-bit XNOR-reduce).
 bool combinational_circuits::Identity_Comparator(bitset<4> A, bitset<4> B)
 {
     bool result;
@@ -249,6 +264,9 @@ bool combinational_circuits::Identity_Comparator(bitset<4> A, bitset<4> B)
 }
 
 //Implementation of 74HC85 8-bit Magnitude Comparator.
+//Note: the comment title is the original; the chip is actually a 4-bit comparator
+//with cascading inputs (eq/larger/smaller) for chaining wider comparisons.
+//Returns {A>B, A==B, A<B}.
 vector<bool> combinational_circuits::_74HC85_(bitset<4> A, bitset<4> B, bool eq, bool larger, bool smaller)
 {
     // --- Bit equality flags (XNOR per bit) ---
@@ -306,6 +324,7 @@ vector<bool> combinational_circuits::_74HC85_(bitset<4> A, bitset<4> B, bool eq,
 }
 
 //Implementation of 4-to-1 Multiplexer.
+//Select codes: S1 S0 = 00→A[0], 01→A[1], 10→A[2], 11→A[3].
 bool combinational_circuits::MUX_4_to_1(bitset<4> A, bool S0, bool S1)
 {
     bool D0 = Gates::AND(A[0], Gates::AND(Gates::NOT(S0), Gates::NOT(S1)));
@@ -317,9 +336,13 @@ bool combinational_circuits::MUX_4_to_1(bitset<4> A, bool S0, bool S1)
 }
 
 //Implementation of 74HC151 IC 8-to-1 MUX.
+//Select convention used here: S0 is treated as the MSB of the 3-bit select code
+//(S0 S1 S2), so each Di is gated by the minterm of (S0,S1,S2) equal to i.
 vector<bool> combinational_circuits::_74HC151_(bitset<8> A, bool S0, bool S1, bool S2)
 {
-    bool D0 = Gates::AND(Gates::AND(A[0], Gates::NOT(S0)), Gates::AND(Gates::NOT(S1), Gates::NOT(S0)));
+    //FIX: D0 minterm must be NOT(S0)·NOT(S1)·NOT(S2). The original code wrote
+    //NOT(S0) twice instead of NOT(S2), which made D0 selected for both S=000 and S=100.
+    bool D0 = Gates::AND(Gates::AND(A[0], Gates::NOT(S0)), Gates::AND(Gates::NOT(S1), Gates::NOT(S2)));
     bool D1 = Gates::AND(Gates::AND(A[1], Gates::NOT(S0)), Gates::AND(Gates::NOT(S1), S2));
     bool D2 = Gates::AND(Gates::AND(A[2], Gates::NOT(S0)), Gates::AND(S1, Gates::NOT(S2)));
     bool D3 = Gates::AND(Gates::AND(A[3], Gates::NOT(S0)), Gates::AND(S1, S2));
@@ -336,6 +359,7 @@ vector<bool> combinational_circuits::_74HC151_(bitset<8> A, bool S0, bool S1, bo
 
 
 //Implementation of a 2-to-4 Decoder
+//Inputs: A (MSB), B (LSB). Returns {Y0, Y1, Y2, Y3} (active-high, one-hot).
 vector<bool> combinational_circuits::Decoder_2_to_4(bool A, bool B)
 {
     bool A1 = Gates::AND(Gates::NOT(A), Gates::NOT(B));
@@ -347,6 +371,8 @@ vector<bool> combinational_circuits::Decoder_2_to_4(bool A, bool B)
 
 
 //Implementation of 74HC154 IC 4-to-16 Decoder.
+//Inputs A3..A0 (A3 is MSB). Outputs are active-low (one selected output = 0, others = 1).
+//When EN=0, ALL outputs go HIGH (chip disabled).
 vector<bool> combinational_circuits::_74HC154_(bool A0, bool A1, bool A2, bool A3, bool EN)
 {
     bool OUT0 = Gates::NOT(Gates::AND(
@@ -383,6 +409,8 @@ vector<bool> combinational_circuits::_74HC154_(bool A0, bool A1, bool A2, bool A
 }
 
 //Implementation of using a 2-to-4 Decoder to construct a 4-to-1 MUX
+//The internal decoder produces one-hot select lines D0..D3, which gate the
+//corresponding data input I0..I3 into the OR-tree output.
 bool combinational_circuits::Decoder_to_MUX(bool S1, bool S0, bool I0, bool I1, bool I2, bool I3)
 {
     bool D0 = Gates::AND(Gates::NOT(S1), Gates::NOT(S0));
@@ -399,6 +427,8 @@ bool combinational_circuits::Decoder_to_MUX(bool S1, bool S0, bool I0, bool I1, 
 }
 
 //Implementation of 74HC42 IC BCD-to-Decimal Decoder
+//Inputs A3..A0 form a BCD nibble (A3 is MSB). Outputs are active-low; for BCD
+//values > 9 (i.e. 1010..1111) ALL outputs stay HIGH (no valid decoding).
 vector<bool> combinational_circuits::_74HC42_(bool A0, bool A1, bool A2, bool A3)
 {
     bool OUT0 = Gates::NOT(Gates::AND(Gates::AND(Gates::AND(Gates::NOT(A3), Gates::NOT(A2)), Gates::NOT(A1)),
@@ -422,6 +452,9 @@ vector<bool> combinational_circuits::_74HC42_(bool A0, bool A1, bool A2, bool A3
 }
 
 //Implementation of a BCD-to-7-Segment Decoder with a LED Display 74LS47D.
+//Inputs A3..A0 form a BCD nibble (A3 is MSB). `decimal` controls the decimal point.
+//Outputs the 8 segment signals {a,b,c,d,e,f,g,dp} (active-high, common cathode)
+//AND prints an ASCII rendering of the digit to stdout.
 vector<bool> combinational_circuits::BCD_to_7_Segment(bool A3, bool A2, bool A1, bool A0, bool decimal)
 {
     // Digit detection (correct BCD decoding)
@@ -456,6 +489,7 @@ vector<bool> combinational_circuits::BCD_to_7_Segment(bool A3, bool A2, bool A1,
                          Gates::AND(Gates::NOT(A1), A0));
 
     // Segment logic (standard active-high common cathode)
+    // Each segment is the OR of every digit that lights it.
 
     bool a = Gates::OR(Gates::OR(Gates::OR(D0, D2), Gates::OR(D3, D5)),
                        Gates::OR(Gates::OR(D6, D7), Gates::OR(D8, D9)));
@@ -463,8 +497,9 @@ vector<bool> combinational_circuits::BCD_to_7_Segment(bool A3, bool A2, bool A1,
     bool b = Gates::OR(Gates::OR(Gates::OR(D0, D1), Gates::OR(D2, D3)),
                        Gates::OR(Gates::OR(D4, D7), Gates::OR(D8, D9)));
 
+    //FIX: segment c is also ON for digit 9 (D9 was missing from the OR chain).
     bool c = Gates::OR(Gates::OR(Gates::OR(D0, D1), Gates::OR(D3, D4)),
-                       Gates::OR(Gates::OR(D5, D6), Gates::OR(D7, D8)));
+                       Gates::OR(Gates::OR(D5, D6), Gates::OR(Gates::OR(D7, D8), D9)));
 
     bool d = Gates::OR(Gates::OR(Gates::OR(D0, D2), Gates::OR(D3, D5)),
                        Gates::OR(Gates::OR(D6, D8), D9));
@@ -474,8 +509,9 @@ vector<bool> combinational_circuits::BCD_to_7_Segment(bool A3, bool A2, bool A1,
     bool f = Gates::OR(Gates::OR(Gates::OR(D0, D4), Gates::OR(D5, D6)),
                        Gates::OR(D8, D9));
 
+    //FIX: segment g is also ON for digit 9 (D9 was missing from the OR chain).
     bool g = Gates::OR(Gates::OR(Gates::OR(D2, D3), Gates::OR(D4, D5)),
-                       Gates::OR(D6, D8));
+                       Gates::OR(Gates::OR(D6, D8), D9));
 
     bool dp = decimal;
 
@@ -509,6 +545,9 @@ vector<bool> combinational_circuits::BCD_to_7_Segment(bool A3, bool A2, bool A1,
     return {a, b, c, d, e, f, g, dp};
 }
 
+//Simple 4-to-2 line encoder (no priority, assumes exactly one input is active).
+//Returns {Q1, Q0} where Q1 = D2|D3, Q0 = D1|D3.
+//Note: D0 is implicit — when only D0 is active, the output is 00 by default.
 vector<bool> combinational_circuits::Encoder_4_to_2(bool D0, bool D1, bool D2, bool D3)
 {
     bool Q1 = Gates::OR(D2, D3);
@@ -517,6 +556,8 @@ vector<bool> combinational_circuits::Encoder_4_to_2(bool D0, bool D1, bool D2, b
     return {Q1, Q0};
 }
 
+//10-line decimal-to-BCD encoder. Returns {A3, A2, A1, A0} (BCD, A3 = MSB).
+//Assumes exactly one Di is active; D0 is the implicit default (output 0000).
 vector<bool> combinational_circuits::Decimal_to_BCD_Encoder(
     bool D0, bool D1, bool D2, bool D3, bool D4,
     bool D5, bool D6, bool D7, bool D8, bool D9)
@@ -593,12 +634,16 @@ vector<bool> combinational_circuits::_74HC148_(bitset<8> D)
 }
 
 //Implementation of 74HC147 IC, a Decimal-to-BCD priority Encoder with active low inputs and outputs.
+//D9 has the highest priority, D1 the lowest (D0 is implicit and never an input on the real chip).
+//Each Wi is asserted (active-HIGH internally) when Di is the lowest-numbered active-low input.
+//Final outputs are inverted to match the 74HC147's active-low BCD output pins.
 vector<bool> combinational_circuits::_74HC147_(
     bool D0, bool D1, bool D2, bool D3, bool D4,
     bool D5, bool D6, bool D7, bool D8, bool D9)
 {
     // Winner lines (active HIGH internally)
 
+    // W9 fires when D9 is asserted active-low (D9 == 0).
     bool W9 = Gates::NOT(D9);
 
     bool W8 = Gates::AND(D9,
@@ -665,6 +710,8 @@ vector<bool> combinational_circuits::_74HC147_(
 }
 
 //Implementation of Demultiplexer 1-to-4
+//Routes single input D to one of 4 outputs selected by S1 S0 (S1 = MSB).
+//Returns {Y0, Y1, Y2, Y3}, where exactly one equals D and the others are 0.
 vector<bool> combinational_circuits::DEMUX_1_to_4(bool D, bool S0, bool S1)
 {
     bool Y0 = Gates::AND(Gates::AND(Gates::NOT(S1),Gates::NOT(S0)),D);
@@ -675,6 +722,8 @@ vector<bool> combinational_circuits::DEMUX_1_to_4(bool D, bool S0, bool S1)
 }
 
 //Implementation of 1-to-16 DEMUX using 4-to-16 Decoder
+//Routes D to one of 16 outputs selected by S3 S2 S1 S0 (S3 = MSB).
+//Returns {Y0..Y15}; the selected output equals D, all others are 0.
 vector<bool> combinational_circuits::Decoder_to_DEMUX(bool D, bool S0, bool S1, bool S2, bool S3)
 {
     bool Y0  = Gates::AND(D, Gates::AND(Gates::AND(Gates::NOT(S3), Gates::NOT(S2)), Gates::AND(Gates::NOT(S1), Gates::NOT(S0))));
@@ -706,6 +755,8 @@ vector<bool> combinational_circuits::Decoder_to_DEMUX(bool D, bool S0, bool S1, 
 }
 
 // Evaluates an SOP expression given the current input state and a truth table/minterm mask
+//current_inputs[3..0] = A3..A0 (A3 = MSB). active_minterms[i] = 1 means minterm i is included.
+//Returns the OR of every active minterm whose 4-bit address matches current_inputs.
 bool combinational_circuits::SOP_Evaluator(bitset<4> current_inputs, bitset<16> active_minterms)
 {
     bool A0 = current_inputs[3];
@@ -767,6 +818,7 @@ bool combinational_circuits::SOP_Evaluator(bitset<4> current_inputs, bitset<16> 
 }
 
 //Implement 4-bit Parity Generator.
+//Returns {even_parity, odd_parity} for the 4-bit input A.
 vector<bool> combinational_circuits::Parity_Generator_4bit(bitset<4> A)
 {
     bool even_parity = Gates::XOR(Gates::XOR(A[0],A[1]),Gates::XOR(A[2],A[3]));
@@ -775,6 +827,9 @@ vector<bool> combinational_circuits::Parity_Generator_4bit(bitset<4> A)
 }
 
 //Implement 4-bit Parity Checker.
+//Returns true (error) when the recomputed parity does not match the convention.
+//`even`=true → even-parity system (good transmission has total XOR = 0).
+//`even`=false → odd-parity system  (good transmission has total XOR = 1).
 bool combinational_circuits::Parity_Checker_4bit(bitset<4> A, bool received_parity, bool even)
 {
     bool data_parity = Gates::XOR(Gates::XOR(A[0],A[1]),Gates::XOR(A[2],A[3]));
@@ -784,6 +839,8 @@ bool combinational_circuits::Parity_Checker_4bit(bitset<4> A, bool received_pari
 
 
 //Implement 74HC280 IC 9-bit Parity Generator/Checker
+//Returns {even, odd} parity outputs for the 9-bit input I.
+//Tree-structured XOR network (8 XORs in 3 stages + 1 final XOR for the 9th bit).
 vector<bool> combinational_circuits::_74HC280_(bitset<9> I)
 {
     // Stage 1: Group the first 8 bits into four parallel XOR gates
@@ -810,6 +867,8 @@ vector<bool> combinational_circuits::_74HC280_(bitset<9> I)
 }
 
 // Code Converter from Binary to Gray
+//Standard rule: G_i = B_i XOR B_{i+1} for i < n-1; G_{n-1} = B_{n-1} (MSB passes through).
+//Returns {G0, G1, G2, G3} (LSB first).
 vector<bool> combinational_circuits::Binary_to_Gray(bitset<4> B)
 {
     bool OUT0 = B[3];
@@ -820,6 +879,9 @@ vector<bool> combinational_circuits::Binary_to_Gray(bitset<4> B)
 }
 
 // Code Converter from Gray to Binary
+//Standard rule: B_i = G_i XOR B_{i+1} for i < n-1; B_{n-1} = G_{n-1}.
+//Implemented as a prefix-XOR cascade from MSB down to LSB.
+//Returns {B0, B1, B2, B3} (LSB first).
 vector<bool> combinational_circuits::Gray_to_Binary(bitset<4> G)
 {
     bool OUT0 = G[3];                             // B3 = G3 (MSB)
@@ -831,6 +893,8 @@ vector<bool> combinational_circuits::Gray_to_Binary(bitset<4> G)
 }
 
 // Code Converter from BCD to Excess-3
+//Excess-3 = BCD + 3. Implemented bit-by-bit using the sum/carry equations
+//of adding 0011 to the BCD nibble. Returns {E0, E1, E2, E3} (LSB first).
 vector<bool> combinational_circuits::BCD_to_Excess3(bitset<4> BCD)
 {
     // E0 = NOT(B0)
@@ -852,6 +916,7 @@ vector<bool> combinational_circuits::BCD_to_Excess3(bitset<4> BCD)
 }
 
 // Code Converter from Excess-3 to BCD
+//Inverse of BCD_to_Excess3: BCD = Excess-3 - 3. Returns {B0, B1, B2, B3} (LSB first).
 vector<bool> combinational_circuits::Excess3_to_BCD(bitset<4> EX3)
 {
     // B0 = NOT(E0)
@@ -953,6 +1018,10 @@ vector<bool> combinational_circuits::Hex_to_7_Segment(bitset<4> hex)
 }
 
 //Overflow Detection
+//Detects 4-bit two's-complement overflow for A ± B.
+//`addition`=true → check A+B overflow; `addition`=false → check A-B overflow.
+//Overflow rule: V = (signs_match_of_operands) AND (result_sign != A_sign).
+//For subtraction the effective B sign is inverted (since A-B == A + (-B)).
 bool combinational_circuits::Overflow_Detect(bitset<4> A, bitset<4> B, bool C_in, bool addition)
 {
     bool A_sign = A[3];
@@ -983,6 +1052,7 @@ bool combinational_circuits::Overflow_Detect(bitset<4> A, bitset<4> B, bool C_in
 }
 
 //Detect if a 4-bit number is fully composed of zeros.
+//Returns true iff A == 0000 (i.e. NOR-reduce of all 4 bits).
 bool combinational_circuits::Zero_Detect(bitset<4> A)
 {
     bool result = Gates::OR(Gates::OR(A[0],A[1]),Gates::OR(A[2],A[3]));
@@ -990,6 +1060,11 @@ bool combinational_circuits::Zero_Detect(bitset<4> A)
 }
 
 
+//The original scratch main() is preserved verbatim below but disabled with #if 0
+//so that an external test driver (test_combinational_circuits.cpp) can supply its
+//own main() without causing a duplicate-symbol link error. Toggle the #if to 1 to
+//re-enable this main() in a standalone build of combinational_circuits.cpp.
+#if 0
 int main()
 {
     //Waveform::Generate_Wave({0,1,0,1,0,0,0,0}); //01010000
@@ -1019,3 +1094,4 @@ int main()
 
     return 0;
 }
+#endif

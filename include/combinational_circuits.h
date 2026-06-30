@@ -2,19 +2,22 @@
 #include <iostream>
 #include <vector>
 #include <bitset>
+#include <stdexcept>   // Required for std::invalid_argument / std::out_of_range thrown in Waveform methods
+#include <string>      // Required for std::string returned by *LogicConverter classes
 using namespace std;
 #ifndef COMBINATIONAL_CIRCUITS_H
 #define COMBINATIONAL_CIRCUITS_H
 
 
+//A simple single-bit wire abstraction used to model a physical wire connection.
 class Wire
 {
 private:
-    bool value = false;
+    bool value = false;   //default logic level is LOW (0)
 
 public:
-    void set(bool v) { value = v; }
-    bool get() const { return value; }
+    void set(bool v) { value = v; }    //drive the wire to a new logic level
+    bool get() const { return value; } //read the current logic level on the wire
 };
 
 //Multiple Indicators class.
@@ -51,18 +54,21 @@ public:
     }
 
     //Print decimal equivalent of BCD.
+    //Note: bitset::to_ulong() interprets the bits as a binary number.
     static void Decimal(const bitset<4>& bcd)
     {
         cout << bcd.to_ulong() << endl;
     }
 
     //Bus Monitor.
+    //Prints the raw 4-bit pattern (MSB first, as bitset::operator<< does).
     static void Bus(const bitset<4>& bus)
     {
         cout << "BUS: " << bus << endl;
     }
 };
 
+//Utility class for generating, drawing and analysing digital waveforms.
 class Waveform
 {
 public:
@@ -71,6 +77,7 @@ public:
     // D_C     : duty cycle in percent (0–100)
     // start_state : true = start HIGH, false = start LOW
     // length  : total simulation time (same unit as 1/freq)
+    // Note: callers must guarantee freq > 0 to avoid a division-by-zero.
     static vector<bool> Clock_Signal(double freq, double D_C, bool start_state, int length)
     {
         double period = 1 / freq;
@@ -99,11 +106,12 @@ public:
     }
 
     // Draw a simple ASCII waveform; each bit occupies `periods[i]` characters.
+    // If `periods` is empty, every bit is drawn as a single character.
     static void Generate_Wave(const vector<bool>& A, vector<int> periods)
     {
         string wave;
         if (periods.empty())
-            periods = vector<int>(A.size(), 1);
+            periods = vector<int>(A.size(), 1);   //default width = 1 char per bit
         for (int i = 0; i < A.size(); i++)
         {
             if (!A[i])
@@ -267,7 +275,7 @@ public:
         return out;
     }
 
-    // Slice a sub-window [start, end] of a signal.
+    // Slice a sub-window [start, end) of a signal.
     static vector<bool> Slice(const vector<bool>& sig, int start, int end)
     {
         if (start < 0 || end > static_cast<int>(sig.size()) || start >= end)
@@ -289,6 +297,8 @@ public:
     }
 };
 
+//Helper class for 2-input truth tables: builds SOP / POS expressions and
+//estimates the gate count needed to realise them.
 class twoLogicConverter
 {
 public:
@@ -427,6 +437,7 @@ public:
     }
 };
 
+//Helper class for 3-input truth tables (8 rows): same idea as twoLogicConverter.
 class threeLogicConverter
 {
 public:
@@ -566,6 +577,7 @@ public:
     }
 };
 
+//Helper class for 4-input truth tables (16 rows): same idea as the smaller converters.
 class fourLogicConverter
 {
 public:
@@ -756,6 +768,7 @@ public:
 };
 
 //Print two-input gates truth tables.
+//Each static method prints the truth table of one fundamental logic gate.
 class TruthTable
 {
 public:
@@ -832,35 +845,42 @@ public:
 
 
 //Implement NOT, OR, AND, NOR, XOR, XNOR, Tri-state gates using NAND gate only.
+//NAND is functionally complete, so every other gate can be built from it.
 class Gates
 {
 public:
+    //Primitive NAND gate — the only "real" gate; the rest are derived from it.
     static bool NAND(bool A, bool B)
     {
         return !(A & B);
     }
 
+    //NOT(A) = NAND(A, A)
     static bool NOT(bool A)
     {
         return NAND(A, A);
     }
 
+    //OR(A,B) = NAND(NOT(A), NOT(B))
     static bool OR(bool A, bool B)
     {
         return NAND(NAND(A, A), NAND(B, B));
     }
 
+    //AND(A,B) = NOT(NAND(A,B))
     static bool AND(bool A, bool B)
     {
         return NAND(NAND(A, B), NAND(A, B));
     }
 
+    //NOR(A,B) = NOT(OR(A,B))
     static bool NOR(bool A, bool B)
     {
         return NAND(NAND(NAND(A, A), NAND(B, B)),
                     NAND(NAND(A, A), NAND(B, B)));
     }
 
+    //XOR(A,B) using the classic 4-NAND construction.
     static bool XOR(bool A, bool B)
     {
         bool x = NAND(A, B);
@@ -869,6 +889,7 @@ public:
         return NAND(y, z);
     }
 
+    //XNOR(A,B) = NOT(XOR(A,B))
     static bool XNOR(bool A, bool B)
     {
         bool x = NAND(A, B);
@@ -878,6 +899,7 @@ public:
         return NAND(out_invert, out_invert);
     }
 
+    //Tri-state buffer enum: LOW / HIGH are driven levels, HIGH_Z is high-impedance.
     enum TriState
     {
         LOW = 0,
@@ -885,6 +907,7 @@ public:
         HIGH_Z
     };
 
+    //Tri-state buffer: passes A when EN=1, otherwise goes high-impedance.
     static TriState Tri_state(bool A, bool EN)
     {
         if (!EN)
@@ -894,6 +917,9 @@ public:
     }
 };
 
+//Behavioural model of the TTL 74181 4-bit ALU slice.
+//Mode pin M=1 → logic functions, M=0 → arithmetic functions selected by S[3..0].
+//C_in behaves as the active-low carry input on the real chip.
 class ALU_74181
 {
 public:
@@ -1047,44 +1073,82 @@ private:
     }
 };
 
+//Top-level facade exposing every modelled combinational IC / circuit as a
+//static member function. All methods are pure (no internal state).
 class combinational_circuits
 {
 public:
+    //Returns {Sum, Carry}.
     static vector<bool> Half_Adder(bool A, bool B);
+    //Returns {Sum, Carry}.
     static vector<bool> Full_Adder(bool A, bool B, bool C);
+    //Returns {Diff, Borrow}.
     static vector<bool> Half_Subtractor(bool A, bool B);
+    //Returns {Diff, Borrow}.
     static vector<bool> Full_Subtractor(bool A, bool B, bool B_in);
+    //74HC283 4-bit adder/subtractor. stat=0 → add, stat=1 → subtract.
+    //Returns {C_out, S3, S2, S1, S0} (5 bits).
     static vector<bool> _74HC283_(bitset<4> A, bitset<4> B, bool C_in, bool stat);
+    //Returns {C_out, S3, S2, S1, S0}.
     static vector<bool> Carry_Lookahead_Adder_4bit(bitset<4> A, bitset<4> B, bool C_in);
+    //Returns {M0, M1, M2, M3} (4-bit product).
     static vector<bool> Multiplier_2x2(bitset<2> A, bitset<2> B);
     static vector<bool> Multiplier_4x4(bitset<4> A, bitset<4> B); //
+    //Returns true iff A == B (4-bit equality).
     static bool Identity_Comparator(bitset<4> A, bitset<4> B);
+    //Returns {A>B, A==B, A<B} with cascade inputs (default standalone = eq:1).
     static vector<bool> _74HC85_(bitset<4> A, bitset<4> B, bool eq = 0b1, bool larger = 0b0, bool smaller = 0b0);
+    //4-to-1 MUX. Note: this implementation treats S0 as the MSB of the 2-bit
+    //select code (S0 S1): 00→A[0], 01→A[1], 10→A[2], 11→A[3].
     static bool MUX_4_to_1(bitset<4> A, bool S0, bool S1);
+    //74HC151 8-to-1 MUX. Returns {Y, Y_bar} (non-inverted and inverted outputs).
+    //Select convention: S0 is MSB of the 3-bit select code (S0 S1 S2).
     static vector<bool> _74HC151_(bitset<8> A, bool S0, bool S1, bool S2);
+    //2-to-4 decoder (active-high outputs). Returns {Y0,Y1,Y2,Y3} for inputs A B (A=MSB).
     static vector<bool> Decoder_2_to_4(bool A, bool B);
+    //74HC154 4-to-16 decoder (active-low outputs) with active-high enable EN.
     static vector<bool> _74HC154_(bool A0, bool A1, bool A2, bool A3, bool EN);
+    //Implements a 4-to-1 MUX using an internal 2-to-4 decoder.
     static bool Decoder_to_MUX(bool S1, bool S0, bool I0, bool I1, bool I2, bool I3);
+    //74HC42 BCD-to-decimal decoder (active-low outputs).
     static vector<bool> _74HC42_(bool A0, bool A1, bool A2, bool A3);
+    //BCD-to-7-segment decoder + ASCII rendering. Returns {a,b,c,d,e,f,g,dp}.
     static vector<bool> BCD_to_7_Segment(bool A0, bool A1, bool A2, bool A3, bool decimal);
+    //Simple 4-to-2 encoder. Returns {Q1, Q0}.
     static vector<bool> Encoder_4_to_2(bool D0, bool D1, bool D2, bool D3);
+    //Decimal-to-BCD encoder (10 inputs). Returns {A3,A2,A1,A0}.
     static vector<bool> Decimal_to_BCD_Encoder(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7,
                                                bool D8, bool D9);
+    //74HC148 8-to-3 priority encoder. Returns {Y2, Y1, Y0}.
     static vector<bool> _74HC148_(bitset<8> D);
+    //74HC147 decimal-to-BCD priority encoder (active-low I/O).
     static vector<bool> _74HC147_(bool D0, bool D1, bool D2, bool D3, bool D4, bool D5, bool D6, bool D7, bool D8,
                                   bool D9);
+    //1-to-4 demultiplexer. Returns {Y0,Y1,Y2,Y3}.
     static vector<bool> DEMUX_1_to_4(bool D, bool S0, bool S1);
+    //1-to-16 demux built from a 4-to-16 decoder.
     static vector<bool> Decoder_to_DEMUX(bool D, bool S0, bool S1, bool S2, bool S3);
+    //Evaluate an SOP expression given a 4-bit input and a 16-bit minterm mask.
     static bool SOP_Evaluator(bitset<4> current_inputs, bitset<16> active_minterms);
+    //4-bit parity generator. Returns {even_parity, odd_parity}.
     static vector<bool> Parity_Generator_4bit(bitset<4> A);
+    //4-bit parity checker. `even`=true → check even-parity convention. Returns true on error.
     static bool Parity_Checker_4bit(bitset<4> A, bool received_parity, bool even);
+    //74HC280 9-bit parity generator/checker. Returns {even, odd}.
     static vector<bool> _74HC280_(bitset<9> I);
+    //4-bit Binary→Gray converter. Returns {G0,G1,G2,G3} (LSB-first).
     static vector<bool> Binary_to_Gray(bitset<4> B);
+    //4-bit Gray→Binary converter. Returns {B0,B1,B2,B3} (LSB-first).
     static vector<bool> Gray_to_Binary(bitset<4> G);
+    //BCD→Excess-3 code converter. Returns {E0,E1,E2,E3} (LSB-first).
     static vector<bool> BCD_to_Excess3(bitset<4> BCD);
+    //Excess-3→BCD code converter. Returns {B0,B1,B2,B3} (LSB-first).
     static vector<bool> Excess3_to_BCD(bitset<4> EX3);
+    //Hex→7-segment decoder (digits 0-9, letters A-F). Returns {a,b,c,d,e,f,g,dp}.
     static vector<bool> Hex_to_7_Segment(bitset<4> hex);
+    //Detect 4-bit signed overflow. `addition`=true → check add, false → check subtract.
     static bool Overflow_Detect(bitset<4> A, bitset<4> B, bool C_in,bool addition);
+    //True iff all 4 bits of A are zero.
     static bool Zero_Detect(bitset<4> A);
 };
 
